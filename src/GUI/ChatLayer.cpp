@@ -28,10 +28,22 @@ ChatLayer::~ChatLayer() {
 }
 
 bool ChatLayer::init() {
-    if (!CCLayerColor::init()) return false;
+    auto winSize { CCDirector::get()->getWinSize() };
+    if (!CCLayerColor::initWithColor({ 0, 0, 0, 127 }, winSize.width, winSize.height)) return false;
 
-    // add init stuff
+    setKeypadEnabled(true);
+    // setTouchEnabled(true);
+    setKeyboardEnabled(true);
+
     return true;
+}
+
+void ChatLayer::registerWithTouchDispatcher() {
+    CCTouchDispatcher::get()->addTargetedDelegate(this, -500, true);
+}
+
+void ChatLayer::keyBackClicked() {
+    if (m_isOpen) close();
 }
 
 void ChatLayer::toggleOpen() {
@@ -39,7 +51,10 @@ void ChatLayer::toggleOpen() {
 }
 
 void ChatLayer::open() {
+    auto scene { CCScene::get() };
     log::info("Open instance");
+    scene->addChild(this, scene->getHighestChildZ() + 1);
+    // CCTouchDispatcher::get()->registerForcePrio(this, 2);
     m_isOpen = true;
 }
 
@@ -49,5 +64,7 @@ void ChatLayer::onClose(CCObject*) {
 
 void ChatLayer::close() {
     log::info("Close instance");
+    // CCTouchDispatcher::get()->unregisterForcePrio(this);
+    this->removeFromParent();
     m_isOpen = false;
 }

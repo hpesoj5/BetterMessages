@@ -10,6 +10,9 @@ public:
 
     bool isOpen() { return m_isOpen; }
 
+    void registerWithTouchDispatcher() override;
+    void keyBackClicked() override;
+
     void toggleOpen();
     void open();
     void onClose(CCObject*);  // for close button
