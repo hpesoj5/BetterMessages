@@ -49,6 +49,7 @@ build-*/
 
 # ILY vscode
 **/.vscode
+.editorconfig
 
 # Local History for Visual Studio Code
 .history/
@@ -62,3 +63,7 @@ build-*/
 # CLion
 .idea/
 /cmake-build-*/
+
+# other files
+notes.md
+resources/personal-assets

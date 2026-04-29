@@ -8,9 +8,9 @@
 	},
 	"id": "hpesoj5.bettermessages",
 	"name": "BetterMessages",
-	"version": "v1.0.0",
+	"version": "v1.0.0-alpha",
 	"developer": "hpesoj5",
-	"description": "Improves the messaging system in Geometry Dash!",
+	"description": "Improves the message system in Geometry Dash!",
 	"dependencies": {
 		"geode.node-ids": ">=v1.23.3"
 	}
