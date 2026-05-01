@@ -1,70 +1,79 @@
+#include "Constants.hpp"
 #include "ChatLayer.hpp"
+#include "ProfileSelectMenu.hpp"
+
 
 $on_mod(Loaded) {
-    ChatLayer::get();
+    BetterMessages::ChatLayer::get();
 }
 
-Ref<ChatLayer> ChatLayer::get() {
-    static Ref<ChatLayer> chatLayer { create() };
-    return chatLayer;
-}
-
-ChatLayer* ChatLayer::create() {
-    auto ptr { new ChatLayer };
-    if (ptr && ptr->init()) {
-        log::info("Instance created");
-        ptr->retain();
-        return ptr;
+namespace BetterMessages {
+    Ref<ChatLayer> ChatLayer::get() {
+        static Ref<ChatLayer> chatLayer { create() };
+        return chatLayer;
     }
 
-    CC_SAFE_DELETE(ptr);
-    return nullptr;
-}
+    ChatLayer* ChatLayer::create() {
+        auto ptr { new ChatLayer };
+        if (ptr && ptr->init()) {
+            log::info("Instance created");
+            return ptr;
+        }
 
-ChatLayer::ChatLayer() : m_isOpen {} {}
+        CC_SAFE_DELETE(ptr);
+        return nullptr;
+    }
 
-ChatLayer::~ChatLayer() {
-    log::info("Instance destroyed");
-}
+    ChatLayer::ChatLayer() : m_isOpen {} {}
 
-bool ChatLayer::init() {
-    auto winSize { CCDirector::get()->getWinSize() };
-    if (!CCLayerColor::initWithColor({ 0, 0, 0, 127 }, winSize.width, winSize.height)) return false;
+    ChatLayer::~ChatLayer() {
+        log::info("Instance destroyed");
+    }
 
-    setKeypadEnabled(true);
-    // setTouchEnabled(true);
-    setKeyboardEnabled(true);
+    bool ChatLayer::init() {
+        auto winSize { CCDirector::get()->getWinSize() };
+        if (!CCLayerColor::initWithColor({ 0, 0, 0, 127 }, winSize.width, winSize.height)) return false;
 
-    return true;
-}
+        setKeypadEnabled(true);
+        setTouchEnabled(true);
+        setKeyboardEnabled(true);
 
-void ChatLayer::registerWithTouchDispatcher() {
-    CCTouchDispatcher::get()->addTargetedDelegate(this, -500, true);
-}
+        setID("ChatLayer"_spr);
 
-void ChatLayer::keyBackClicked() {
-    if (m_isOpen) close();
-}
+        ProfileSelectMenu::get()->setPosition({ Constants::ChatLayer::PADDING, winSize.height / 2.f });
+        return true;
+    }
 
-void ChatLayer::toggleOpen() {
-    m_isOpen ? close() : open();
-}
+    void ChatLayer::registerWithTouchDispatcher() {
+        CCTouchDispatcher::get()->addTargetedDelegate(this, -400, true);
+    }
 
-void ChatLayer::open() {
-    auto scene { CCScene::get() };
-    log::info("Open instance");
-    scene->addChild(this, scene->getHighestChildZ() + 1);
-    // CCTouchDispatcher::get()->registerForcePrio(this, 2);
-    m_isOpen = true;
-}
+    void ChatLayer::keyBackClicked() {
+        if (m_isOpen) close();
+    }
 
-void ChatLayer::onClose(CCObject*) {
-    close();
-}
+    void ChatLayer::toggleOpen() {
+        m_isOpen ? close() : open();
+    }
 
-void ChatLayer::close() {
-    log::info("Close instance");
-    // CCTouchDispatcher::get()->unregisterForcePrio(this);
-    this->removeFromParent();
-    m_isOpen = false;
+    void ChatLayer::open() {
+        auto scene { CCScene::get() };
+        log::info("Open instance");
+        scene->addChild(this, scene->getHighestChildZ() + 1);
+
+        addChild(ProfileSelectMenu::get(), getZOrder() + 1);
+        ProfileSelectMenu::get()->updateZOrder();
+        m_isOpen = true;
+    }
+
+    void ChatLayer::onClose(CCObject*) {
+        close();
+    }
+
+    void ChatLayer::close() {
+        log::info("Close instance");
+        this->removeFromParent();
+        ProfileSelectMenu::get()->removeFromParent();
+        m_isOpen = false;
+    }
 }

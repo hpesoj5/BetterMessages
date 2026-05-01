@@ -6,7 +6,7 @@ using namespace geode::prelude;
 class $modify(CCKeyboardDispatcher) {
     bool dispatchKeyboardMSG(enumKeyCodes key, bool isKeyDown, bool isKeyRepeat, double d) {
         if (key == enumKeyCodes::KEY_F9 && isKeyDown && !isKeyRepeat) {
-            ChatLayer::get()->toggleOpen();
+            BetterMessages::ChatLayer::get()->toggleOpen();
 
             return false;
         }

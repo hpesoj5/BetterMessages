@@ -4,26 +4,34 @@
 
 using namespace geode::prelude;
 
-class ChatLayer final : public CCLayerColor {
-public:
-    static Ref<ChatLayer> get();
+namespace BetterMessages {
+    class ChatLayer final : public CCLayerColor {
+    public:
+        static Ref<ChatLayer> get();
 
-    bool isOpen() { return m_isOpen; }
+        bool isOpen() { return m_isOpen; }
 
-    void registerWithTouchDispatcher() override;
-    void keyBackClicked() override;
+        void registerWithTouchDispatcher() override;
+        void keyBackClicked() override;
 
-    void toggleOpen();
-    void open();
-    void onClose(CCObject*);  // for close button
-    void close();
+        void toggleOpen();
+        void open();
+        void onClose(CCObject*);  // for close button
+        void close();
 
-private:
-    ChatLayer();
-    ~ChatLayer();
+    private:
+        ChatLayer();
+        ~ChatLayer();
 
-    static ChatLayer* create();
-    bool init() override;
+        ChatLayer(ChatLayer const&) = delete;
+        ChatLayer(ChatLayer&&) = delete;
+        ChatLayer& operator=(ChatLayer const&) = delete;
+        ChatLayer& operator=(ChatLayer&&) = delete;
 
-    bool m_isOpen;
-};
+        static ChatLayer* create();
+        bool init() override;
+
+        int m_zLayer;
+        bool m_isOpen;
+    };
+}
