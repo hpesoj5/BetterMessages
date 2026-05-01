@@ -1,6 +1,5 @@
 #include "Constants.hpp"
 #include "ProfileSelectMenu.hpp"
-// #include "ProfileButtonMenu.hpp"
 #include "ProfileButton.hpp"
 
 namespace BetterMessages {
@@ -44,9 +43,10 @@ namespace BetterMessages {
         addChild(m_searchInput);
 
         m_profileScrollLayer = ScrollLayer::create({ contentWidth, contentHeight - m_searchInput->getContentHeight() }, true, true);
-        m_profileScrollLayer->setID("ProfileScrollLayer"_spr);
-        m_profileScrollLayer->setStealingTouches(true);
         m_profileScrollLayer->m_contentLayer->setLayout(RowLayout::create()->setGap(0.f)->setGrowCrossAxis(true)->setAxisAlignment(AxisAlignment::Start));
+        m_profileScrollLayer->setID("ProfileScrollLayer"_spr);
+        m_profileScrollLayer->setUserFlag("alk.better-touch-prio/steals-touch");
+        m_profileScrollLayer->setStealingTouches(true);
         addChild(m_profileScrollLayer);
 
         updateLayout();
@@ -77,7 +77,6 @@ namespace BetterMessages {
 
     void ProfileSelectMenu::updateUsers(CCArray* users) {
         // m_profileButtonMenu->updateUsers(users);
-        log::info("Friends: {}", users);
         m_profileScrollLayer->m_contentLayer->removeAllChildren();
 
         auto size { users->count() };
@@ -86,7 +85,6 @@ namespace BetterMessages {
             auto user { static_cast<GJUserScore*>(users->objectAtIndex(i)) };
             auto button { ProfileButton::create(contentWidth / 4.f, contentHeight / 4.f, user, this, nullptr) };
             button->setID(user->m_userName);
-            log::info("User {}: {}. Button: {}", i, user->m_userName, button);
             m_profileScrollLayer->m_contentLayer->addChild(button);
         }
 

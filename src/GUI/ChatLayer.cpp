@@ -39,13 +39,15 @@ namespace BetterMessages {
         setKeyboardEnabled(true);
 
         setID("ChatLayer"_spr);
+        setUserFlag("alk.better-touch-prio/steals-touch");
 
         ProfileSelectMenu::get()->setPosition({ Constants::ChatLayer::PADDING, winSize.height / 2.f });
         return true;
     }
 
     void ChatLayer::registerWithTouchDispatcher() {
-        CCTouchDispatcher::get()->addTargetedDelegate(this, -400, true);
+        auto td { CCTouchDispatcher::get() };
+        td->addPrioTargetedDelegate(this, td->getTargetPrio(), true);
     }
 
     void ChatLayer::keyBackClicked() {

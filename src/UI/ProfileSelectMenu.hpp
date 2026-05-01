@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ProfileButtonMenu.hpp"
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;

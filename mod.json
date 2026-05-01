@@ -12,6 +12,7 @@
 	"developer": "hpesoj5",
 	"description": "Improves the message system in Geometry Dash!",
 	"dependencies": {
-		"geode.node-ids": ">=v1.23.3"
+		"geode.node-ids": ">=v1.23.3",
+		"alk.better-touch-prio": ">=1.0.17"
 	}
 }

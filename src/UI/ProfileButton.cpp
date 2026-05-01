@@ -31,11 +31,11 @@ namespace BetterMessages {
         auto gm { GameManager::get() };
         m_icon->setColors(gm->colorForIdx(user->m_color1), gm->colorForIdx(user->m_color2));
 
-        log::info("User {}: glow enabled: {}", user->m_userName, user->m_glowEnabled);
+        // log::info("User {}: glow enabled: {}", user->m_userName, user->m_glowEnabled);
         if (user->m_glowEnabled) m_icon->setGlowOutline(gm->colorForIdx(user->m_color3));
         else m_icon->disableGlowOutline();
 
-        m_icon->setScale(0.7f);
+        m_icon->setScale(0.6f);
 
         addChild(m_icon, zOrder + 1);
 
