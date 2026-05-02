@@ -32,7 +32,7 @@ namespace BetterMessages {
 
     bool ChatLayer::init() {
         auto winSize { CCDirector::get()->getWinSize() };
-        if (!CCLayerColor::initWithColor({ 0, 0, 0, 127 }, winSize.width, winSize.height)) return false;
+        if (!Popup::initWithColor({ 0, 0, 0, 127 }, winSize.width, winSize.height)) return false;
 
         setKeypadEnabled(true);
         setTouchEnabled(true);
@@ -43,11 +43,6 @@ namespace BetterMessages {
 
         ProfileSelectMenu::get()->setPosition({ Constants::ChatLayer::PADDING, winSize.height / 2.f });
         return true;
-    }
-
-    void ChatLayer::registerWithTouchDispatcher() {
-        auto td { CCTouchDispatcher::get() };
-        td->addPrioTargetedDelegate(this, td->getTargetPrio(), true);
     }
 
     void ChatLayer::keyBackClicked() {

@@ -5,18 +5,17 @@
 using namespace geode::prelude;
 
 namespace BetterMessages {
-    class ChatLayer final : public CCLayerColor {
+    class ChatLayer final : public Popup {
     public:
         static Ref<ChatLayer> get();
 
         bool isOpen() { return m_isOpen; }
 
-        void registerWithTouchDispatcher() override;
         void keyBackClicked() override;
 
         void toggleOpen();
         void open();
-        void onClose(CCObject*);  // for close button
+        void onClose(CCObject*) override;  // for close button
         void close();
 
     private:
