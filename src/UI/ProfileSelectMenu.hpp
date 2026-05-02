@@ -12,7 +12,7 @@ namespace BetterMessages {
         void updateZOrder();
         void retrieveFriends();
         void updateUsers(CCArray* users);
-        void defocusInput();
+        void resetInput();
 
 
     private:

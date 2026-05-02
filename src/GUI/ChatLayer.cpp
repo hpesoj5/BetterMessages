@@ -41,7 +41,6 @@ namespace BetterMessages {
         setID("ChatLayer"_spr);
         setUserFlag("alk.better-touch-prio/steals-touch");
 
-        ProfileSelectMenu::get()->setPosition({ Constants::ChatLayer::PADDING, winSize.height / 2.f });
         return true;
     }
 
@@ -69,7 +68,8 @@ namespace BetterMessages {
 
     void ChatLayer::close() {
         log::info("Close instance");
-        ProfileSelectMenu::get()->defocusInput();
+        ProfileSelectMenu::get()->resetInput();
+        ProfileSelectMenu::get()->retrieveFriends();
         this->removeFromParent();
         ProfileSelectMenu::get()->removeFromParent();
         m_isOpen = false;

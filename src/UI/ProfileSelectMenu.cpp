@@ -26,7 +26,8 @@ namespace BetterMessages {
 
         auto winSize { CCDirector::get()->getWinSize() };
         setContentSize({ winSize.width - 2 * Constants::ChatLayer::PADDING, winSize.height / 2 - Constants::ChatLayer::PADDING });
-        setAnchorPoint({ 0.5f, 0.5f });
+        setAnchorPoint({ 0.0f, 0.0f });
+        setPosition({ Constants::ChatLayer::PADDING, winSize.height / 2.f });
 
         // search bar
         auto [contentWidth, contentHeight] { getContentSize() };
@@ -149,7 +150,8 @@ namespace BetterMessages {
         log::info("{} selected", button->getID());
     }
 
-    void ProfileSelectMenu::defocusInput() {
+    void ProfileSelectMenu::resetInput() {
+        m_searchInput->setString("");
         m_searchInput->defocus();
     }
 }
