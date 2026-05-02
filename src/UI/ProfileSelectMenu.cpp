@@ -52,15 +52,19 @@ namespace BetterMessages {
 
         updateLayout();
 
-        m_prevULD = this;
-        std::swap(m_prevULD, GameLevelManager::get()->m_userListDelegate);
-        GameLevelManager::get()->getUserList(UserListType::Friends);
+        retrieveFriends();
 
         return true;
     }
 
     ProfileSelectMenu::~ProfileSelectMenu() {
         log::info("ProfileSelectMenu instance destroyed");
+    }
+
+    void ProfileSelectMenu::retrieveFriends() {
+        m_prevULD = this;
+        std::swap(m_prevULD, GameLevelManager::get()->m_userListDelegate);
+        GameLevelManager::get()->getUserList(UserListType::Friends);
     }
 
     void ProfileSelectMenu::updateZOrder() {

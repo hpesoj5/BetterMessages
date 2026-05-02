@@ -10,6 +10,7 @@ namespace BetterMessages {
         static Ref<ProfileSelectMenu> get();
 
         void updateZOrder();
+        void retrieveFriends();
         void updateUsers(CCArray* users);
         void defocusInput();
 
