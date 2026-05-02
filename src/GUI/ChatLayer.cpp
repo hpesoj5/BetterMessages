@@ -69,6 +69,7 @@ namespace BetterMessages {
 
     void ChatLayer::close() {
         log::info("Close instance");
+        ProfileSelectMenu::get()->defocusInput();
         this->removeFromParent();
         ProfileSelectMenu::get()->removeFromParent();
         m_isOpen = false;

@@ -13,21 +13,26 @@ namespace BetterMessages {
     }
 
     bool ProfileButton::init(float width, float height, GJUserScore* user, CCObject* target, SEL_MenuHandler selector) {
+        if (!CCMenu::init()) return false;
         setContentSize({ width, height });
+        auto zOrder { getZOrder() };
 
         auto background { NineSlice::create("GJ_button_05.png") };
         background->setContentSize({ width, height });
-        if (!Button::init(background, nullptr, nullptr, target, selector)) return false;
 
-        auto [contentWidth, contentHeight] { getContentSize() };
-        auto zOrder { getZOrder() };
-
+        m_button = CCMenuItemSpriteExtra::create(background, nullptr, target, selector);
+        m_button->setContentSize({ width, height });
+        m_button->setAnchorPoint({ 0.5f, 0.5f });
+        m_button->setPosition({ width / 2.f, height / 2.f });
+        m_button->m_scaleMultiplier = 1.05f;
+        m_button->setID(user->m_userName);
+        addChild(m_button, zOrder + 1);
 
         // init icon
         m_icon = SimplePlayer::create(user->m_iconID);
         m_icon->updatePlayerFrame(user->m_iconID, user->m_iconType);
         m_icon->setAnchorPoint({ 0.f, 0.5f });
-        m_icon->setPosition({  contentWidth * 0.15f, contentHeight / 2.f });
+        m_icon->setPosition({  width * 0.15f, height / 2.f });
         auto gm { GameManager::get() };
         m_icon->setColors(gm->colorForIdx(user->m_color1), gm->colorForIdx(user->m_color2));
 
@@ -37,15 +42,15 @@ namespace BetterMessages {
 
         m_icon->setScale(0.6f);
 
-        addChild(m_icon, zOrder + 1);
+        m_button->addChild(m_icon, zOrder + 2);
 
         // init player name
         m_name = CCLabelBMFont::create(user->m_userName.c_str(), "bigFont.fnt");
         m_name->setAnchorPoint({ 0.f, 0.5f });
-        m_name->setPosition({ contentWidth * 0.27f, contentHeight / 2.f });
+        m_name->setPosition({ width * 0.27f, height / 2.f });
         m_name->setScale(0.4f);
 
-        addChild(m_name, zOrder + 1);
+        m_button->addChild(m_name, zOrder + 2);
 
         updateLayout();
         return true;
@@ -53,7 +58,10 @@ namespace BetterMessages {
 
     void ProfileButton::updateZOrder(int zOrder) {
         setZOrder(zOrder);
-        m_icon->setZOrder(zOrder + 1);
-        m_name->setZOrder(zOrder + 1);
+        m_button->setZOrder(zOrder + 1);
+        m_icon->setZOrder(zOrder + 2);
+        m_name->setZOrder(zOrder + 2);
+
+        updateLayout();
     }
 }

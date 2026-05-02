@@ -1,12 +1,11 @@
 #pragma once
 
-#include "Button.hpp"
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
 
 namespace BetterMessages {
-    class ProfileButton final : public Button {
+    class ProfileButton final : public CCMenu {
     public:
         static ProfileButton* create(float width, float height, GJUserScore* user, CCObject* target, SEL_MenuHandler selector);
 
@@ -19,6 +18,7 @@ namespace BetterMessages {
 
         // void draw() override;
 
+        CCMenuItemSpriteExtra* m_button;
         SimplePlayer* m_icon;
         CCLabelBMFont* m_name;
     };

@@ -40,6 +40,7 @@ namespace BetterMessages {
         m_searchInput->setPosition({ 0.f, contentHeight });
         m_searchInput->setTextAlign(TextInputAlign::Left);
         m_searchInput->setID("ProfileSearchInput"_spr);
+        m_searchInput->setDelegate(this);
         addChild(m_searchInput);
 
         m_profileScrollLayer = ScrollLayer::create({ contentWidth, contentHeight - m_searchInput->getContentHeight() }, true, true);
@@ -75,16 +76,46 @@ namespace BetterMessages {
         updateLayout();
     }
 
+    void ProfileSelectMenu::textChanged(CCTextInputNode* input) {
+        auto toLower { [](std::string s) { std::transform(s.begin(), s.end(), s.begin(), ::tolower); return s; } };
+
+        auto str { input->getString() };
+
+        if (str.empty()) m_filteredUsers = m_users;
+        else {
+            m_filteredUsers.clear();
+            auto size { m_users.size() };
+            for (auto i { 0uz }; i < size; ++i) {
+                auto user { m_users[i] };
+                if (toLower(user->m_userName).find(toLower(str)) != gd::string::npos) {
+                    m_filteredUsers.push_back(user);
+                }
+            }
+        }
+        displayUsers();
+    }
+
     void ProfileSelectMenu::updateUsers(CCArray* users) {
-        // m_profileButtonMenu->updateUsers(users);
+        auto size { users->count() };
+        m_users.clear();
+        m_users.reserve(size);
+
+        for (auto i { 0uz }; i < size; ++i) {
+            m_users.push_back(static_cast<GJUserScore*>(users->objectAtIndex(i)));
+        }
+
+        m_filteredUsers = m_users;
+        displayUsers();
+    }
+
+    void ProfileSelectMenu::displayUsers() {
         m_profileScrollLayer->m_contentLayer->removeAllChildren();
 
-        auto size { users->count() };
-        auto [contentWidth, contentHeight] { m_profileScrollLayer->m_contentLayer->getContentSize() };
+        auto size { m_filteredUsers.size() };
+        auto [contentWidth, contentHeight] { m_profileScrollLayer->getContentSize() };
         for (auto i { 0uz }; i < size; ++i) {
-            auto user { static_cast<GJUserScore*>(users->objectAtIndex(i)) };
-            auto button { ProfileButton::create(contentWidth / 4.f, contentHeight / 4.f, user, this, nullptr) };
-            button->setID(user->m_userName);
+            auto user { m_filteredUsers[i] };
+            auto button { ProfileButton::create(contentWidth / 4.f, contentHeight / 4.f, user, this, menu_selector(ProfileSelectMenu::onSelectUser)) };
             m_profileScrollLayer->m_contentLayer->addChild(button);
         }
 
@@ -107,5 +138,14 @@ namespace BetterMessages {
             log::info("Get friends list request failed");
         }
         UserListDelegate::getUserListFailed(type, errorType);
+    }
+
+    void ProfileSelectMenu::onSelectUser(CCObject* sender) {
+        auto button { static_cast<CCMenuItemSpriteExtra*>(sender) };
+        log::info("{} selected", button->getID());
+    }
+
+    void ProfileSelectMenu::defocusInput() {
+        m_searchInput->defocus();
     }
 }
