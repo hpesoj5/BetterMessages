@@ -10,6 +10,7 @@ namespace BetterMessages {
         static Ref<ChatMenu> get();
 
         void updateZOrder(int zOrder);
+        void goToUser(GJUserScore* user);
 
     private:
         ChatMenu() = default;
@@ -22,5 +23,8 @@ namespace BetterMessages {
 
         static ChatMenu* create();
         bool init() override;
+
+        CCMenu* m_tabButtonMenu;
+        NineSlice* m_tabButtonMenuBG;
     };
 }

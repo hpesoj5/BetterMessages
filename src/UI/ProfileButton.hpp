@@ -13,6 +13,7 @@ namespace BetterMessages {
 
     private:
         ProfileButton() = default;
+        ~ProfileButton() = default;
 
         bool init(float width, float height, GJUserScore* user, CCObject* target, SEL_MenuHandler selector);
 

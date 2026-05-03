@@ -1,4 +1,5 @@
 #include "Constants.hpp"
+#include "ChatMenu.hpp"
 #include "ProfileSelectMenu.hpp"
 #include "ProfileButton.hpp"
 
@@ -148,7 +149,11 @@ namespace BetterMessages {
 
     void ProfileSelectMenu::onSelectUser(CCObject* sender) {
         auto button { static_cast<CCMenuItemSpriteExtra*>(sender) };
-        log::info("{} selected", button->getID());
+        auto user { static_cast<GJUserScore*>(button->getUserObject()) };
+
+        log::info("{} selected, object: {}", button->getID(), user);
+
+        ChatMenu::get()->goToUser(user);
     }
 
     void ProfileSelectMenu::resetInput() {

@@ -1,12 +1,28 @@
 #pragma once
 
-#include "Button.hpp"
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
 
 namespace BetterMessages {
-    class TabButton final: public Button {
+    class TabButton final: public CCMenu {
+    public:
+        static TabButton* create(float width, float height, GJUserScore* user);
 
+        void updateZOrder(int ZOrder);
+        void select(CCObject* = nullptr);
+
+    private:
+        TabButton() = default;
+        ~TabButton() = default;
+
+        bool init(float width, float height, GJUserScore* user);
+
+        void onClose(CCObject*);
+
+        CCMenuItemSpriteExtra* m_button;
+        CCMenu* m_closeMenu;
+        CCMenuItemSpriteExtra* m_close;
+        CCLabelBMFont* m_name;
     };
 }

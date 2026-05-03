@@ -32,7 +32,7 @@ namespace BetterMessages {
 
     bool ChatLayer::init() {
         auto winSize { CCDirector::get()->getWinSize() };
-        if (!Popup::initWithColor({ 0, 0, 0, 127 }, winSize.width, winSize.height)) return false;
+        if (!Popup::initWithColor({ 0, 0, 0, 191 }, winSize.width, winSize.height)) return false;
 
         setKeypadEnabled(true);
         setTouchEnabled(true);
@@ -41,6 +41,11 @@ namespace BetterMessages {
         setID("ChatLayer"_spr);
         setUserFlag("alk.better-touch-prio/steals-touch");
 
+        // m_background = NineSlice::create("GJ_square05.png");
+        // m_background->setAnchorPoint({ 0.f, 0.f });
+        // m_background->setContentSize(winSize);
+
+        // addChild(m_background);
         addChild(ProfileSelectMenu::get());
         addChild(ChatMenu::get());
         return true;
@@ -59,6 +64,8 @@ namespace BetterMessages {
         log::info("Open instance");
         auto zOrder { scene->getHighestChildZ() + 1 };
         scene->addChild(this, zOrder);
+
+        // m_background->setZOrder(zOrder);
 
         ProfileSelectMenu::get()->updateZOrder(zOrder + 1);
 

@@ -30,6 +30,8 @@ namespace BetterMessages {
         static ChatLayer* create();
         bool init() override;
 
+        // NineSlice* m_background;
+
         int m_zLayer;
         bool m_isOpen;
     };

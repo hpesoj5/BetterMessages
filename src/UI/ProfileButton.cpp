@@ -18,15 +18,20 @@ namespace BetterMessages {
         setContentSize({ width, height });
         auto zOrder { getZOrder() };
 
-        auto background { NineSlice::create("GJ_button_05.png") };
+        auto background { NineSlice::create("square02_small.png") };
+        background->setOpacity(0);
         background->setContentSize({ width, height });
+        auto backgroundSelected { NineSlice::create("square02b_small.png") };
+        backgroundSelected->setOpacity(50);
+        backgroundSelected->setContentSize({ width, height });
 
-        m_button = CCMenuItemSpriteExtra::create(background, nullptr, target, selector);
+        m_button = CCMenuItemSpriteExtra::create(background, backgroundSelected, target, selector);
         m_button->setContentSize({ width, height });
         m_button->setAnchorPoint({ 0.5f, 0.5f });
         m_button->setPosition({ width / 2.f, height / 2.f });
-        m_button->m_scaleMultiplier = 1.05f;
+        m_button->m_animationEnabled = false;
         m_button->setID(user->m_userName);
+        m_button->setUserObject(user);
         addChild(m_button, zOrder + 1);
 
         // init icon
