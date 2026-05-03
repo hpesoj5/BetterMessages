@@ -9,6 +9,8 @@ namespace BetterMessages {
     public:
         static Ref<ChatMenu> get();
 
+        void updateZOrder(int zOrder);
+
     private:
         ChatMenu() = default;
         ~ChatMenu();

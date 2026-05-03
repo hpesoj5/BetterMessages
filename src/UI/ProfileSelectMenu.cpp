@@ -68,8 +68,9 @@ namespace BetterMessages {
         GameLevelManager::get()->getUserList(UserListType::Friends);
     }
 
-    void ProfileSelectMenu::updateZOrder() {
-        auto zOrder { getZOrder() };
+    void ProfileSelectMenu::updateZOrder(int zOrder) {
+        setZOrder(zOrder);
+
         m_searchInput->setZOrder(zOrder + 1);
         m_profileScrollLayer->setZOrder(zOrder + 1);
 

@@ -1,6 +1,6 @@
-#include "Constants.hpp"
 #include "ChatLayer.hpp"
 #include "ProfileSelectMenu.hpp"
+#include "ChatMenu.hpp"
 
 
 $on_mod(Loaded) {
@@ -41,6 +41,8 @@ namespace BetterMessages {
         setID("ChatLayer"_spr);
         setUserFlag("alk.better-touch-prio/steals-touch");
 
+        addChild(ProfileSelectMenu::get());
+        addChild(ChatMenu::get());
         return true;
     }
 
@@ -55,10 +57,12 @@ namespace BetterMessages {
     void ChatLayer::open() {
         auto scene { CCScene::get() };
         log::info("Open instance");
-        scene->addChild(this, scene->getHighestChildZ() + 1);
+        auto zOrder { scene->getHighestChildZ() + 1 };
+        scene->addChild(this, zOrder);
 
-        addChild(ProfileSelectMenu::get(), getZOrder() + 1);
-        ProfileSelectMenu::get()->updateZOrder();
+        ProfileSelectMenu::get()->updateZOrder(zOrder + 1);
+
+        ChatMenu::get()->updateZOrder(zOrder + 1);
         m_isOpen = true;
     }
 
@@ -71,7 +75,7 @@ namespace BetterMessages {
         ProfileSelectMenu::get()->resetInput();
         ProfileSelectMenu::get()->retrieveFriends();
         this->removeFromParent();
-        ProfileSelectMenu::get()->removeFromParent();
+
         m_isOpen = false;
     }
 }

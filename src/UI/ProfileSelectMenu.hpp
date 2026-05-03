@@ -9,7 +9,7 @@ namespace BetterMessages {
     public:
         static Ref<ProfileSelectMenu> get();
 
-        void updateZOrder();
+        void updateZOrder(int zOrder);
         void retrieveFriends();
         void updateUsers(CCArray* users);
         void resetInput();

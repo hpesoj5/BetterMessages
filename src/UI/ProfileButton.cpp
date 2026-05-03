@@ -1,3 +1,4 @@
+#include "Helpers.hpp"
 #include "ProfileButton.hpp"
 
 namespace BetterMessages {
@@ -48,7 +49,7 @@ namespace BetterMessages {
         m_name = CCLabelBMFont::create(user->m_userName.c_str(), "bigFont.fnt");
         m_name->setAnchorPoint({ 0.f, 0.5f });
         m_name->setPosition({ width * 0.27f, height / 2.f });
-        m_name->setScale(0.4f);
+        m_name->setScale(getScaleFromLength(user->m_userName.size()));
 
         m_button->addChild(m_name, zOrder + 2);
 
