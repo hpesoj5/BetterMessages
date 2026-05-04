@@ -10,4 +10,12 @@ namespace Constants {
         inline constexpr float GAP { 1.f };
         inline constexpr float HEIGHT { 0.125f };  // proportion of ChatMenu height
     }
+
+    namespace ChatStore {
+        // probably gonna change
+        enum class PollRate {  // in seconds
+            Active = 5,
+            Background = 30,
+        };
+    }
 }
