@@ -6,6 +6,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -28,7 +29,7 @@ namespace BetterMessages {
     public:
         static ChatStore* get();
 
-        void sendMessage(int userID, gd::string content, gd::string subject = " ");
+        void sendMessage(int userID, std::string content, std::string subject = " ");
         void setActiveConversation(int userID);
         Conversation getConversation(int userID) const;
         Conversation getActiveConversation() const;

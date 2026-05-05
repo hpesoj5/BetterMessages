@@ -6,7 +6,7 @@ namespace BetterMessages {
         return &chatStore;
     }
 
-    void ChatStore::sendMessage(int userID, gd::string content, gd::string subject) {
+    void ChatStore::sendMessage(int userID, std::string content, std::string subject) {
         // only allow one request at a time (stop them from spamming)
         if (prev_UMD != this) {
             log::info("Message sent to {} was rate limited.", userID);

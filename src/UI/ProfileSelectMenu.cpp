@@ -86,7 +86,7 @@ namespace BetterMessages {
     void ProfileSelectMenu::textChanged(CCTextInputNode* input) {
         auto toLower { [](std::string s) { std::transform(s.begin(), s.end(), s.begin(), ::tolower); return s; } };
 
-        auto str { input->getString() };
+        std::string str { input->getString() };
 
         if (str.empty()) m_filteredUsers = m_users;
         else {
@@ -94,7 +94,7 @@ namespace BetterMessages {
             auto size { m_users.size() };
             for (auto i { 0uz }; i < size; ++i) {
                 auto user { m_users[i] };
-                if (toLower(user->m_userName).find(toLower(str)) != gd::string::npos) {
+                if (toLower(user->m_userName).find(toLower(str)) != std::string::npos) {
                     m_filteredUsers.push_back(user);
                 }
             }
