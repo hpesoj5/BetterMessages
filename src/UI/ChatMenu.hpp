@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include "TabButton.hpp"
 
 using namespace geode::prelude;
 
@@ -17,6 +18,8 @@ namespace BetterMessages {
         void setInputString(std::string const& draft);
 
         void restoreChatHistory(std::vector<Ref<GJUserMessage>> const& history);
+
+        TabButton* getTabButtonByTag(int tag);
 
     private:
         ChatMenu() = default;

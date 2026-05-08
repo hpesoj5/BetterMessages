@@ -2,12 +2,12 @@
 #include "ChatHandler.hpp"
 #include "Constants.hpp"
 #include <Geode/Geode.hpp>
-#include <arc/prelude.hpp>
 
 using Constants::ChatHandler::PollRate;
 
 $on_mod(Loaded) {
     auto chatLayer { BetterMessages::ChatLayer::get() };
+
     arc::Notify notify;
     async::spawn([chatLayer, notify] -> arc::Future<> {
         auto lastLoadTime { asp::Instant::now() };

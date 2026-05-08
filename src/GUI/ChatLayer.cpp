@@ -27,7 +27,7 @@ namespace BetterMessages {
 
     bool ChatLayer::init() {
         auto winSize { CCDirector::get()->getWinSize() };
-        if (!Popup::initWithColor({ 0, 0, 0, 191 }, winSize.width, winSize.height)) return false;
+        if (!Popup::initWithColor({ 0, 0, 0, 223 }, winSize.width, winSize.height)) return false;
 
         setKeypadEnabled(true);
         setTouchEnabled(true);

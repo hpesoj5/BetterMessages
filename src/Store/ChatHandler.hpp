@@ -1,11 +1,9 @@
-// TODO: find a way of writing chat messages to save data
-// TODO: write a task to retrieve online messages wtih other users
-// TODO: verify sendMessage works, and have deleteMessage (only accessible from messeage list popup) reflect in chat history
-// TODO: actual chat ui with textinput for writing messages with default subject
+// TODO: change delegates to http requests to avoid conflict with GD's message delegates
 
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include <arc/prelude.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -26,9 +24,14 @@ namespace BetterMessages {
 
         void switchChat(int userID);
         void sendMessage(std::string content, std::string subject = " ");
-        arc::Future<> loadMessages();
 
+        arc::Future<> loadMessages();
         bool isLoading() const;
+
+        void saveToDisk();
+        void restoreFromDisk();
+
+        int getActiveUserID() const;
 
     private:
         ChatHandler() = default;
@@ -43,8 +46,8 @@ namespace BetterMessages {
         void restoreChat(int userID);
         void sortChats();
 
-        void downloadChat(int userID);
-        void downloadMessages();
+        arc::Future<> downloadChat(int userID);
+        arc::Future<> downloadChats();
 
         void downloadMessageFinished(GJUserMessage* message) override;
         void downloadMessageFailed(int id) override;
@@ -56,15 +59,17 @@ namespace BetterMessages {
         void loadMessagesFailed(char const* key, GJErrorCode errorType) override;
 
         std::unordered_map<int, Chat> m_chats;
-        std::vector<std::pair<Ref<GJUserMessage>, size_t>> m_messagesToDownload;
+        Ref<GJUserMessage> m_downloadedMessage;
 
         MessageListDelegate* prev_MLD { this };
         UploadMessageDelegate* prev_UMD { this };
         DownloadMessageDelegate* prev_DMD { this };
 
-        arc::Notify m_notif;
+        arc::Notify m_loadNotif;
+        arc::Notify m_downloadNotif;
+        arc::Mutex<int> m_loadMtx {};
+        arc::Mutex<int> m_downloadMtx {};
 
-        int m_messageIndex {};
         int m_activeUserID { -1 };
         int m_highestSentMessageID {};
         int m_highestReceivedMessageID {};

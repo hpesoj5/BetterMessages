@@ -1,4 +1,5 @@
 #include "Constants.hpp"
+#include "ChatHandler.hpp"
 #include "ChatMenu.hpp"
 #include "TabButton.hpp"
 
@@ -48,17 +49,30 @@ namespace BetterMessages {
 
         addChild(m_tabButtonMenuBG);
 
-        m_chatInput = TextInput::create(contentWidth, "", "chatFont.fnt");
-        m_chatInput->hideBG();
+        m_chatInput = TextInput::create(contentWidth, "Send message...", "chatFont.fnt");
+        // m_chatInput->hideBG();
         m_chatInput->setTextAlign(TextInputAlign::Left);
         m_chatInput->setAnchorPoint({ 0.f, 0.f });
         m_chatInput->ignoreAnchorPointForPosition(false);
         m_chatInput->setPosition(0.f, 0.f);
         m_chatInput->setID("ChatInput"_spr);
+        m_chatInput->setMaxCharCount(200);
 
         addChild(m_chatInput);
 
         m_chatHistoryLayer = ScrollLayer::create({ contentWidth, contentHeight - m_tabButtonMenu->getContentHeight() - m_chatInput->getContentHeight() }, true, true);
+
+        m_chatHistoryLayer->m_contentLayer->setLayout(ColumnLayout::create()
+            ->setAxisReverse(true)
+            ->setGap(10.f)
+            ->setPadding({ Constants::ChatLayer::PADDING, 0.f, 0.f, Constants::ChatLayer::PADDING / 2.f })
+            ->setDefaultScaleLimits(0.5f, 0.5f)
+            ->setAxisAlignment(AxisAlignment::Start)
+            ->setCrossAxisAlignment(AxisAlignment::Start)
+            ->setCrossAxisLineAlignment(AxisAlignment::Start)
+            ->setAutoGrowAxis(contentHeight - m_tabButtonMenu->getContentHeight() - m_chatInput->getContentHeight())
+        );
+
         m_chatHistoryLayer->ignoreAnchorPointForPosition(false);
         m_chatHistoryLayer->setAnchorPoint({ 0.f, 0.f });
         m_chatHistoryLayer->setPosition(0.f, m_chatInput->getContentHeight());
@@ -99,8 +113,7 @@ namespace BetterMessages {
 
     void ChatMenu::goToUser(GJUserScore* user) {
         auto tabButton { static_cast<TabButton*>(m_tabButtonMenu->getChildByID(user->m_userName)) };
-        if (tabButton) return;
-        else {
+        if (!tabButton) {
             auto [contentWidth, contentHeight] { getContentSize() };
             tabButton = TabButton::create((contentWidth / Constants::TabMenu::ROW_LENGTH) - Constants::TabMenu::GAP, contentHeight * Constants::TabMenu::HEIGHT, user);
             m_tabButtonMenu->addChild(tabButton);
@@ -108,6 +121,8 @@ namespace BetterMessages {
 
             m_tabButtonMenu->updateLayout();
         }
+
+        ChatHandler::get()->switchChat(user->m_userID);
     }
 
     void ChatMenu::defocus() {
@@ -128,14 +143,19 @@ namespace BetterMessages {
         auto zOrder { m_chatHistoryLayer->getZOrder() };
 
         for (auto const& message : history) {
-            std::string line { message->m_uploadDate };
-            if (message->m_outgoing) line += ' ' + message->m_username;
-            else line += ' ' + username;
+            std::string line {};
+            if (message->m_outgoing) line += username + ": ";
+            else line += message->m_username + ": ";
             line += message->m_content;
 
             auto label { CCLabelBMFont::create(line.c_str(), "chatFont.fnt") };
-            label->setScale(0.4f);
+            label->setAnchorPoint({ 0.f, 0.5f });
             m_chatHistoryLayer->m_contentLayer->addChild(label, zOrder + 1);
         }
+        m_chatHistoryLayer->m_contentLayer->updateLayout();
+    }
+
+    TabButton* ChatMenu::getTabButtonByTag(int tag) {
+        return static_cast<TabButton*>(m_tabButtonMenu->getChildByTag(tag));
     }
 }

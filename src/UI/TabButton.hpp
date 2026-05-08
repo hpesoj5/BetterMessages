@@ -11,6 +11,7 @@ namespace BetterMessages {
 
         void updateZOrder(int ZOrder);
         void select(CCObject* = nullptr);
+        void setSelectedSprite(bool selected);
 
     private:
         TabButton() = default;
@@ -21,6 +22,7 @@ namespace BetterMessages {
         void onClose(CCObject*);
 
         CCMenuItemSpriteExtra* m_button;
+        NineSlice* m_selectedSprite;
         CCMenu* m_closeMenu;
         CCMenuItemSpriteExtra* m_close;
         CCLabelBMFont* m_name;
