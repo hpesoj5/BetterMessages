@@ -144,9 +144,9 @@ namespace BetterMessages {
 
         for (auto const& message : history) {
             std::string line {};
-            if (message->m_outgoing) line += username + std::string(": ");
-            else line += message->m_username + std::string(": ");
-            line += message->m_content;
+            if (message->m_outgoing) line += static_cast<std::string>(username) + ": ";
+            else line += static_cast<std::string>(message->m_username) + ": ";
+            line += static_cast<std::string>(message->m_content);
 
             auto label { CCLabelBMFont::create(line.c_str(), "chatFont.fnt") };
             label->setAnchorPoint({ 0.f, 0.5f });
