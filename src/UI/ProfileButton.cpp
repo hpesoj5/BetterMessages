@@ -28,7 +28,7 @@ namespace BetterMessages {
         m_button = CCMenuItemSpriteExtra::create(background, backgroundSelected, target, selector);
         m_button->setContentSize({ width, height });
         m_button->setAnchorPoint({ 0.5f, 0.5f });
-        m_button->setPosition({ width / 2.f, height / 2.f });
+        m_button->setPosition(width / 2.f, height / 2.f);
         m_button->m_animationEnabled = false;
         m_button->setID(user->m_userName);
         m_button->setUserObject(user);
@@ -38,7 +38,7 @@ namespace BetterMessages {
         m_icon = SimplePlayer::create(user->m_iconID);
         m_icon->updatePlayerFrame(user->m_iconID, user->m_iconType);
         m_icon->setAnchorPoint({ 0.f, 0.5f });
-        m_icon->setPosition({  width * 0.15f, height / 2.f });
+        m_icon->setPosition({ width * 0.15f, height / 2.f });
         auto gm { GameManager::get() };
         m_icon->setColors(gm->colorForIdx(user->m_color1), gm->colorForIdx(user->m_color2));
 
@@ -53,7 +53,7 @@ namespace BetterMessages {
         // init player name
         m_name = CCLabelBMFont::create(user->m_userName.c_str(), "bigFont.fnt");
         m_name->setAnchorPoint({ 0.f, 0.5f });
-        m_name->setPosition({ width * 0.27f, height / 2.f });
+        m_name->setPosition(width * 0.27f, height / 2.f);
         m_name->setScale(getScaleFromLength(user->m_userName.size()));
 
         m_button->addChild(m_name, zOrder + 2);

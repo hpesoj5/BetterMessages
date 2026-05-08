@@ -2,11 +2,6 @@
 #include "ProfileSelectMenu.hpp"
 #include "ChatMenu.hpp"
 
-
-$on_mod(Loaded) {
-    BetterMessages::ChatLayer::get();
-}
-
 namespace BetterMessages {
     Ref<ChatLayer> ChatLayer::get() {
         static Ref<ChatLayer> chatLayer { create() };
@@ -70,7 +65,9 @@ namespace BetterMessages {
         ProfileSelectMenu::get()->updateZOrder(zOrder + 1);
 
         ChatMenu::get()->updateZOrder(zOrder + 1);
+
         m_isOpen = true;
+        m_openNotif.notifyAll();
     }
 
     void ChatLayer::onClose(CCObject*) {
@@ -81,6 +78,7 @@ namespace BetterMessages {
         log::info("Close instance");
         ProfileSelectMenu::get()->resetInput();
         ProfileSelectMenu::get()->retrieveFriends();
+        ChatMenu::get()->defocus();
         this->removeFromParent();
 
         m_isOpen = false;

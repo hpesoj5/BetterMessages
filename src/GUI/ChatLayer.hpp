@@ -18,6 +18,8 @@ namespace BetterMessages {
         void onClose(CCObject*) override;  // for close button
         void close();
 
+        arc::Notify m_openNotif;
+
     private:
         ChatLayer();
         ~ChatLayer();

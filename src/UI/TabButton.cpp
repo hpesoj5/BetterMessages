@@ -30,7 +30,7 @@ namespace BetterMessages {
         m_button = CCMenuItemSpriteExtra::create(background, backgroundSelected, this, menu_selector(TabButton::select));
         m_button->setContentSize({ width, height });
         m_button->setAnchorPoint({ 0.5f, 0.5f });
-        m_button->setPosition({ width / 2.f, height / 2.f });
+        m_button->setPosition(width / 2.f, height / 2.f);
         m_button->m_animationEnabled = false;
 
         addChild(m_button, zOrder + 1);
@@ -38,7 +38,7 @@ namespace BetterMessages {
         // init tab name
         m_name = CCLabelBMFont::create(user->m_userName.c_str(), "bigFont.fnt");
         m_name->setAnchorPoint({ 0.f, 0.5f });
-        m_name->setPosition({ width * 0.1f, height * 0.45f });
+        m_name->setPosition(width * 0.1f, height * 0.45f);
         m_name->setScale(getScaleFromLength(user->m_userName.size()) / 2.f);
 
         m_button->addChild(m_name, zOrder + 2);
@@ -46,7 +46,7 @@ namespace BetterMessages {
         // init close
         m_closeMenu = CCMenu::create();
         m_closeMenu->setAnchorPoint({ 0.5f, 0.5f });
-        m_closeMenu->setPosition({ width * 0.88f, height * 0.45f });
+        m_closeMenu->setPosition(width * 0.88f, height * 0.45f);
         addChild(m_closeMenu, zOrder + 2);
 
         m_close = CCMenuItemSpriteExtra::create(CCSprite::createWithSpriteFrameName("GJ_deleteIcon_001.png"), this, menu_selector(TabButton::onClose));

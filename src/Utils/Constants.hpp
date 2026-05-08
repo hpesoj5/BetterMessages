@@ -11,7 +11,11 @@ namespace Constants {
         inline constexpr float HEIGHT { 0.125f };  // proportion of ChatMenu height
     }
 
-    namespace ChatStore {
+    namespace Chat {
+        inline constexpr float NUM_ROWS { 10.f };  // number of lines of messages in the menu, including the chat input
+    }
+
+    namespace ChatHandler {
         // probably gonna change
         enum class PollRate {  // in seconds
             Active = 5,

@@ -23,12 +23,12 @@ namespace BetterMessages {
     bool ProfileSelectMenu::init() {
         if (!CCMenu::init()) return false;
 
-        setID("profile-select-menu"_spr);
+        setID("ProfileSelectMenu"_spr);
 
         auto winSize { CCDirector::get()->getWinSize() };
         setContentSize({ winSize.width - 2 * Constants::ChatLayer::PADDING, winSize.height / 2 - Constants::ChatLayer::PADDING });
         setAnchorPoint({ 0.0f, 0.0f });
-        setPosition({ Constants::ChatLayer::PADDING, winSize.height / 2.f });
+        setPosition(Constants::ChatLayer::PADDING, winSize.height / 2.f);
 
         // search bar
         auto [contentWidth, contentHeight] { getContentSize() };
@@ -39,7 +39,7 @@ namespace BetterMessages {
         );
         m_searchInput->ignoreAnchorPointForPosition(false);
         m_searchInput->setAnchorPoint({ 0.f, 1.0f });
-        m_searchInput->setPosition({ 0.f, contentHeight });
+        m_searchInput->setPosition(0.f, contentHeight);
         m_searchInput->setTextAlign(TextInputAlign::Left);
         m_searchInput->setID("ProfileSearchInput"_spr);
         m_searchInput->setDelegate(this);
@@ -134,7 +134,7 @@ namespace BetterMessages {
         if (type == UserListType::Friends) {
             std::swap(m_prevULD, GameLevelManager::get()->m_userListDelegate);
             updateUsers(scores);
-            log::info("Get friends list request succeeded");
+            // log::info("Get friends list request succeeded");
         }
         UserListDelegate::getUserListFinished(scores, type);
     }
@@ -142,7 +142,7 @@ namespace BetterMessages {
     void ProfileSelectMenu::getUserListFailed(UserListType type, GJErrorCode errorType) {
         if (type == UserListType::Friends) {
             std::swap(m_prevULD, GameLevelManager::get()->m_userListDelegate);
-            log::info("Get friends list request failed");
+            // log::info("Get friends list request failed");
         }
         UserListDelegate::getUserListFailed(type, errorType);
     }

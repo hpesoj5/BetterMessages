@@ -11,6 +11,12 @@ namespace BetterMessages {
 
         void updateZOrder(int zOrder);
         void goToUser(GJUserScore* user);
+        void defocus();
+
+        std::string getInputString() const;
+        void setInputString(std::string const& draft);
+
+        void restoreChatHistory(std::vector<Ref<GJUserMessage>> const& history);
 
     private:
         ChatMenu() = default;
@@ -26,5 +32,8 @@ namespace BetterMessages {
 
         CCMenu* m_tabButtonMenu;
         NineSlice* m_tabButtonMenuBG;
+
+        ScrollLayer* m_chatHistoryLayer;
+        TextInput* m_chatInput;
     };
 }

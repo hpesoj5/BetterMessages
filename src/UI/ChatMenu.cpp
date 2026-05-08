@@ -22,13 +22,13 @@ namespace BetterMessages {
     bool ChatMenu::init() {
         if (!CCMenu::init()) return false;
 
-        setID("chat-menu"_spr);
+        setID("ChatMenu"_spr);
 
         auto winSize { CCDirector::get()->getWinSize() };
 
         setContentSize({ winSize.width, winSize.height / 2.f });
         setAnchorPoint({ 0.f, 0.f });
-        setPosition({ 0.f, 0.f });
+        setPosition(0.f, 0.f);
 
         auto [contentWidth, contentHeight] { getContentSize() };
         m_tabButtonMenu = CCMenu::create();
@@ -37,16 +37,34 @@ namespace BetterMessages {
         m_tabButtonMenu->setID("TabButtonMenu"_spr);
         m_tabButtonMenu->setAnchorPoint({ 0.f, 1.f });
         m_tabButtonMenu->ignoreAnchorPointForPosition(false);
-        m_tabButtonMenu->setPosition({ 0.f, contentHeight });
+        m_tabButtonMenu->setPosition(0.f, contentHeight);
         addChild(m_tabButtonMenu);
 
         m_tabButtonMenuBG = NineSlice::create("square02b_small.png");
         m_tabButtonMenuBG->setOpacity(50);
         m_tabButtonMenuBG->setContentSize({ winSize.width * 1.1f, contentHeight * Constants::TabMenu::HEIGHT });  // to not show rounded corners
         m_tabButtonMenuBG->setAnchorPoint({ 0.5f, 1.f });
-        m_tabButtonMenuBG->setPosition({ contentWidth / 2.f, contentHeight });
+        m_tabButtonMenuBG->setPosition(contentWidth / 2.f, contentHeight);
 
         addChild(m_tabButtonMenuBG);
+
+        m_chatInput = TextInput::create(contentWidth, "", "chatFont.fnt");
+        m_chatInput->hideBG();
+        m_chatInput->setTextAlign(TextInputAlign::Left);
+        m_chatInput->setAnchorPoint({ 0.f, 0.f });
+        m_chatInput->ignoreAnchorPointForPosition(false);
+        m_chatInput->setPosition(0.f, 0.f);
+        m_chatInput->setID("ChatInput"_spr);
+
+        addChild(m_chatInput);
+
+        m_chatHistoryLayer = ScrollLayer::create({ contentWidth, contentHeight - m_tabButtonMenu->getContentHeight() - m_chatInput->getContentHeight() }, true, true);
+        m_chatHistoryLayer->ignoreAnchorPointForPosition(false);
+        m_chatHistoryLayer->setAnchorPoint({ 0.f, 0.f });
+        m_chatHistoryLayer->setPosition(0.f, m_chatInput->getContentHeight());
+        m_chatHistoryLayer->setID("ChatHistory"_spr);
+
+        addChild(m_chatHistoryLayer);
 
         updateLayout();
 
@@ -68,6 +86,14 @@ namespace BetterMessages {
             static_cast<TabButton*>(m_tabButtonMenu->getChildByIndex(i))->updateZOrder(zOrder + 2);
         }
 
+        m_chatInput->setZOrder(zOrder + 1);
+        m_chatHistoryLayer->setZOrder(zOrder + 1);
+
+        auto chatHistorySize { m_chatHistoryLayer->m_contentLayer->getChildrenCount() };
+        for (auto i { 0uz }; i < chatHistorySize; ++i) {
+            m_chatHistoryLayer->m_contentLayer->getChildByIndex(i)->setZOrder(zOrder + 2);
+        }
+
         updateLayout();
     }
 
@@ -81,6 +107,35 @@ namespace BetterMessages {
             tabButton->updateZOrder(m_tabButtonMenu->getZOrder() + 1);
 
             m_tabButtonMenu->updateLayout();
+        }
+    }
+
+    void ChatMenu::defocus() {
+        m_chatInput->defocus();
+    }
+
+    std::string ChatMenu::getInputString() const {
+        return m_chatInput->getString();
+    }
+
+    void ChatMenu::setInputString(std::string const& draft) {
+        m_chatInput->setString(draft);
+    }
+
+    void ChatMenu::restoreChatHistory(std::vector<Ref<GJUserMessage>> const& history) {
+        m_chatHistoryLayer->m_contentLayer->removeAllChildren();
+        auto username { GJAccountManager::get()->m_username };
+        auto zOrder { m_chatHistoryLayer->getZOrder() };
+
+        for (auto const& message : history) {
+            std::string line { message->m_uploadDate };
+            if (message->m_outgoing) line += ' ' + message->m_username;
+            else line += ' ' + username;
+            line += message->m_content;
+
+            auto label { CCLabelBMFont::create(line.c_str(), "chatFont.fnt") };
+            label->setScale(0.4f);
+            m_chatHistoryLayer->m_contentLayer->addChild(label, zOrder + 1);
         }
     }
 }
