@@ -22,6 +22,8 @@ namespace BetterMessages {
     public:
         static ChatHandler* get();
 
+        void saveChat(int userID);
+        void restoreChat(int userID);
         void switchChat(int userID);
         void refreshChat(int userID);
         arc::Future<> sendMessage(int userID, std::string content, std::string subject = " ");
@@ -45,8 +47,6 @@ namespace BetterMessages {
         ChatHandler& operator=(ChatHandler const& other) = delete;
         ChatHandler& operator=(ChatHandler&& other) = delete;
 
-        void saveChat(int userID);
-        void restoreChat(int userID);
         void sortChats();
 
         arc::Future<> downloadChat(int userID);

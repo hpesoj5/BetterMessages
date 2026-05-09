@@ -93,7 +93,10 @@ namespace BetterMessages {
         auto ch { ChatHandler::get() };
         auto activeUserID { ch->getActiveUserID() };
         ch->removeUserID(userID);
-        if (userID == activeUserID) ch->switchChat(ch->getActiveUserID());
+        if (userID == activeUserID) {
+            ch->saveChat(userID);
+            ch->switchChat(ch->getActiveUserID());
+        }
     }
 
     void TabButton::select(CCObject* sender) {

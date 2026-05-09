@@ -52,11 +52,13 @@ namespace BetterMessages {
 
     void ChatHandler::switchChat(int userID) {
         auto activeUserID { getActiveUserID() };
-        if (activeUserID != -1) {
+
+        if (activeUserID != -1 && activeUserID != userID) {
             saveChat(activeUserID);
             auto button { ChatMenu::get()->getTabButtonByTag(activeUserID) };
             if (button) button->setSelectedSprite(false);
         }
+
         setActiveUserID(userID);
         activeUserID = userID;
         auto button { ChatMenu::get()->getTabButtonByTag(userID) };
@@ -87,7 +89,7 @@ namespace BetterMessages {
         // unsent messages
         int page {};
         while (true) {
-            gm->getUserMessages(false, page, 50);
+            co_await async::waitForMainThread([gm, page] { gm->getUserMessages(false, page, 50); });
             co_await m_loadNotif.notified();
             if (m_stopLoading) {
                 m_stopLoading = false;
@@ -99,7 +101,7 @@ namespace BetterMessages {
         // sent messages
         page = 0;
         while (true) {
-            gm->getUserMessages(true, page, 50);
+            co_await async::waitForMainThread([gm, page] { gm->getUserMessages(true, page, 50); });
             co_await m_loadNotif.notified();
             if (m_stopLoading) {
                 m_stopLoading = false;
@@ -181,7 +183,7 @@ namespace BetterMessages {
         auto& history { it->second.history };
         for (auto message : history) {
             if (message->m_content.empty()) {
-                gm->downloadUserMessage(message->m_messageID, message->m_outgoing);
+                co_await async::waitForMainThread([gm, message] { gm->downloadUserMessage(message->m_messageID, message->m_outgoing); });
                 co_await m_downloadNotif.notified();
                 message->m_content = m_downloadedMessage->m_content;
             }
@@ -218,7 +220,7 @@ namespace BetterMessages {
 
         auto accountID { gm->accountIDForUserID(userID) };
 
-        gm->uploadUserMessage(accountID, subject, content);
+        co_await async::waitForMainThread([gm, accountID, subject, content] { gm->uploadUserMessage(accountID, subject, content); });
         co_await m_uploadNotif.notified();
 
         co_await loadMessages();
