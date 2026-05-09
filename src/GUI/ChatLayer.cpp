@@ -11,7 +11,6 @@ namespace BetterMessages {
     ChatLayer* ChatLayer::create() {
         auto ptr { new ChatLayer };
         if (ptr && ptr->init()) {
-            log::info("Instance created");
             return ptr;
         }
 
@@ -21,9 +20,7 @@ namespace BetterMessages {
 
     ChatLayer::ChatLayer() : m_isOpen {} {}
 
-    ChatLayer::~ChatLayer() {
-        log::info("Instance destroyed");
-    }
+    ChatLayer::~ChatLayer() {}
 
     bool ChatLayer::init() {
         auto winSize { CCDirector::get()->getWinSize() };

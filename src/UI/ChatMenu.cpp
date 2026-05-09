@@ -12,7 +12,6 @@ namespace BetterMessages {
     ChatMenu* ChatMenu::create() {
         auto ptr { new ChatMenu };
         if (ptr && ptr->init()) {
-            log::info("ChatMenu instance created");
             return ptr;
         }
 
@@ -62,7 +61,6 @@ namespace BetterMessages {
             KeybindSettingPressedEventV3(Mod::get(), "sendMessage"),
             [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
                 if (down && !repeat) {
-                    log::info("Enter pressed. focused: {}", m_focused);
                     if (m_focused) enterPressed(m_chatInput->getInputNode());
                 }
             }
@@ -148,9 +146,7 @@ namespace BetterMessages {
     }
 
     void ChatMenu::restoreChatHistory(std::vector<Ref<GJUserMessage>> const& history) {
-        auto firstChild { m_chatHistoryLayer->m_contentLayer->getChildByIndex(0) };
-        auto userID { firstChild ? firstChild->getTag() : -1 };
-        if (userID != ChatHandler::get()->getActiveUserID()) m_chatHistoryLayer->m_contentLayer->removeAllChildren();
+        m_chatHistoryLayer->m_contentLayer->removeAllChildren();
         auto username { GJAccountManager::get()->m_username };
         auto zOrder { m_chatHistoryLayer->getZOrder() };
 
@@ -160,13 +156,6 @@ namespace BetterMessages {
             else line += static_cast<std::string>(message->m_username) + ": ";
             line += static_cast<std::string>(message->m_content);
 
-            auto existing { m_chatHistoryLayer->m_contentLayer->getChildByID(numToString(message->m_messageID)) };
-            if (existing) {
-                auto label { static_cast<CCLabelBMFont*>(existing) };
-                if (label->getString() != line) label->setString(line.c_str());
-                continue;
-            }
-
             auto label { CCLabelBMFont::create(line.c_str(), "chatFont.fnt") };
             label->setAnchorPoint({ 0.f, 0.5f });
             m_chatHistoryLayer->m_contentLayer->addChild(label, zOrder + 1);
@@ -174,7 +163,6 @@ namespace BetterMessages {
             label->setID(numToString(message->m_messageID));
         }
         m_chatHistoryLayer->m_contentLayer->updateLayout();
-        log::info("history restored");
     }
 
     TabButton* ChatMenu::getTabButtonByTag(int tag) {
@@ -192,11 +180,16 @@ namespace BetterMessages {
     }
 
     void ChatMenu::enterPressed(CCTextInputNode* node) {
-        log::info("enter pressed");
         std::string str { node->getString() };
         node->setString("");
         auto ch { ChatHandler::get() };
         auto userID { ch->getActiveUserID() };
-        async::spawn(ch->sendMessage(userID, str));
+        async::spawn(
+            ch->sendMessage(userID, str),
+            [userID] {
+                if (userID == ChatHandler::get()->getActiveUserID())
+                ChatHandler::get()->refreshChat(userID);
+            }
+        );
     }
 }

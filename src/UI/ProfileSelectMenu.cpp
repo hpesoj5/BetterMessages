@@ -12,7 +12,6 @@ namespace BetterMessages {
     ProfileSelectMenu* ProfileSelectMenu::create() {
         auto ptr { new ProfileSelectMenu };
         if (ptr && ptr->init()) {
-            log::info("ProfileSelectMenu instance created");
             return ptr;
         }
 
@@ -59,9 +58,7 @@ namespace BetterMessages {
         return true;
     }
 
-    ProfileSelectMenu::~ProfileSelectMenu() {
-        log::info("ProfileSelectMenu instance destroyed");
-    }
+    ProfileSelectMenu::~ProfileSelectMenu() {}
 
     void ProfileSelectMenu::retrieveFriends() {
         m_prevULD = this;
@@ -150,8 +147,6 @@ namespace BetterMessages {
     void ProfileSelectMenu::onSelectUser(CCObject* sender) {
         auto button { static_cast<CCMenuItemSpriteExtra*>(sender) };
         auto user { static_cast<GJUserScore*>(button->getUserObject()) };
-
-        log::info("{} selected, object: {}", button->getID(), user);
 
         ChatMenu::get()->goToUser(user);
     }

@@ -16,13 +16,9 @@ $on_mod(Loaded) {
                 arc::selectee(
                     arc::sleep(asp::time::Duration::fromSecs(
                         static_cast<int>(chatLayer->isOpen() ? PollRate::Active : PollRate::Background)
-                    )),
-                    [] { log::info("Timer ended"); }
+                    ))
                 ),
-                arc::selectee(
-                    chatLayer->m_openNotif.notified(),
-                    [] { log::info("ChatLayer opened"); }
-                )
+                arc::selectee(chatLayer->m_openNotif.notified())
             );
 
             auto elapsed { lastLoadTime.elapsed() };
@@ -35,8 +31,10 @@ $on_mod(Loaded) {
     });
 
     async::spawn([notify] -> arc::Future<> {
+        auto ch { BetterMessages::ChatHandler::get() };
         while (true) {
-            co_await BetterMessages::ChatHandler::get()->loadMessages();
+            co_await ch->loadMessages();
+            queueInMainThread([ch] { ch->refreshChat(ch->getActiveUserID()); });
             co_await notify.notified();
         }
     });

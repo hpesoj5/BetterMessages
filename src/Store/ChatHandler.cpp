@@ -70,7 +70,6 @@ namespace BetterMessages {
         auto activeUserID { getActiveUserID() };
         if (userID == -1 || activeUserID != userID) return;
         auto const& history { m_chats[userID].history };
-        log::info("New history size: {}", history.size());
         ChatMenu::get()->restoreChatHistory(history);
         m_isRefreshing = false;
     }
@@ -134,7 +133,7 @@ namespace BetterMessages {
             if (sent) {
                 if (ID <= m_highestSentMessageID) m_stopLoading = true;
                 else {
-                    log::info("New sent message fetched: {}\nRecipient: {}\nTime since: {}\nSubject: {}\nContent: {}", ID, message->m_username, message->m_uploadDate, message->m_title, message->m_content);
+                    // log::info("New sent message fetched: {}\nRecipient: {}\nTime since: {}\nSubject: {}\nContent: {}", ID, message->m_username, message->m_uploadDate, message->m_title, message->m_content);
                     auto& chat { m_chats[userID] };
                     chat.history.push_back(message);
                 }
@@ -143,7 +142,7 @@ namespace BetterMessages {
             else {
                 if (message->m_messageID <= m_highestReceivedMessageID) m_stopLoading = true;
                 else {
-                    log::info("New received message fetched: {}\nSender: {}\nTime since: {}\nSubject: {}\nContent: {}", ID, message->m_username, message->m_uploadDate, message->m_title, message->m_content);
+                    // log::info("New received message fetched: {}\nSender: {}\nTime since: {}\nSubject: {}\nContent: {}", ID, message->m_username, message->m_uploadDate, message->m_title, message->m_content);
                     auto& chat { m_chats[userID] };
                     chat.history.push_back(message);
                     ++chat.unreadCount;
@@ -169,7 +168,6 @@ namespace BetterMessages {
             co_await downloadChat(userID);
         }
         sortChats();
-        refreshChat(getActiveUserID());
     }
 
     arc::Future<> ChatHandler::downloadChat(int userID) {
@@ -224,14 +222,9 @@ namespace BetterMessages {
         co_await m_uploadNotif.notified();
 
         co_await loadMessages();
-
-        if (getActiveUserID() == userID) {
-            refreshChat(userID);
-        }
     }
 
     void ChatHandler::uploadMessageFinished(int accountID) {
-        log::info("Message sent successfully");
         std::swap(prev_UMD, GameLevelManager::get()->m_uploadMessageDelegate);
         m_uploadNotif.notifyAll();
     }
