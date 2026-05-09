@@ -14,7 +14,22 @@ namespace BetterMessages {
 
     bool ChatHandler::isLoading() const { return m_isLoading; }
 
-    int ChatHandler::getActiveUserID() const { return m_activeUserID; }
+    int ChatHandler::getActiveUserID() const { return m_activeUserID.empty() ? -1 : m_activeUserID.back(); }
+
+    void ChatHandler::setActiveUserID(int userID) {
+        if (userID == -1) return;
+        removeUserID(userID);
+        m_activeUserID.push_back(userID);
+    }
+
+    void ChatHandler::removeUserID(int userID) {
+        if (userID == -1 || m_activeUserID.empty()) return;
+        if (m_activeUserID.back() == userID) m_activeUserID.pop_back();
+        else {
+            auto it { std::find(m_activeUserID.begin(), m_activeUserID.end(), userID) };
+            if (it != m_activeUserID.end()) m_activeUserID.erase(it);
+        }
+    }
 
     void ChatHandler::saveChat(int userID) {
         auto it { m_chats.find(userID) };
@@ -38,13 +53,15 @@ namespace BetterMessages {
     }
 
     void ChatHandler::switchChat(int userID) {
-        if (m_activeUserID != -1) {
-            saveChat(m_activeUserID);
-            auto button { ChatMenu::get()->getTabButtonByTag(m_activeUserID) };
+        auto activeUserID { getActiveUserID() };
+        if (activeUserID != -1) {
+            saveChat(activeUserID);
+            auto button { ChatMenu::get()->getTabButtonByTag(activeUserID) };
             if (button) button->setSelectedSprite(false);
         }
-        m_activeUserID = userID;
-        auto button { ChatMenu::get()->getTabButtonByTag(m_activeUserID) };
+        setActiveUserID(userID);
+        activeUserID = userID;
+        auto button { ChatMenu::get()->getTabButtonByTag(userID) };
         if (button) button->setSelectedSprite(true);
         restoreChat(userID);
    }

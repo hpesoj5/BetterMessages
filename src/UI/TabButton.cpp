@@ -63,6 +63,7 @@ namespace BetterMessages {
         m_close = CCMenuItemSpriteExtra::create(CCSprite::createWithSpriteFrameName("GJ_deleteIcon_001.png"), this, menu_selector(TabButton::onClose));
         m_close->setScale(0.3f);
         m_close->m_animationEnabled = false;
+        m_close->setTag(user->m_userID);
 
         m_closeMenu->addChild(m_close, zOrder + 4);
         m_closeMenu->updateLayout();
@@ -83,10 +84,16 @@ namespace BetterMessages {
         updateLayout();
     }
 
-    void TabButton::onClose(CCObject*) {
+    void TabButton::onClose(CCObject* sender) {
         auto par { this->getParent() };
         this->removeFromParent();
         par->updateLayout();
+        auto userID { sender->getTag() };
+        log::info("Chat {} closed", userID);
+        auto ch { ChatHandler::get() };
+        auto activeUserID { ch->getActiveUserID() };
+        ch->removeUserID(userID);
+        if (userID == activeUserID) ch->switchChat(ch->getActiveUserID());
     }
 
     void TabButton::select(CCObject* sender) {

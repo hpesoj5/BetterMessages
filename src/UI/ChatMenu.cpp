@@ -112,7 +112,7 @@ namespace BetterMessages {
     }
 
     void ChatMenu::goToUser(GJUserScore* user) {
-        auto tabButton { static_cast<TabButton*>(m_tabButtonMenu->getChildByID(user->m_userName)) };
+        auto tabButton { static_cast<TabButton*>(m_tabButtonMenu->getChildByTag(user->m_userID)) };
         if (!tabButton) {
             auto [contentWidth, contentHeight] { getContentSize() };
             tabButton = TabButton::create((contentWidth / Constants::TabMenu::ROW_LENGTH) - Constants::TabMenu::GAP, contentHeight * Constants::TabMenu::HEIGHT, user);

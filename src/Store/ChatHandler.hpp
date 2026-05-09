@@ -32,6 +32,8 @@ namespace BetterMessages {
         void restoreFromDisk();
 
         int getActiveUserID() const;
+        void setActiveUserID(int userID);
+        void removeUserID(int userID);
 
     private:
         ChatHandler() = default;
@@ -70,7 +72,7 @@ namespace BetterMessages {
         arc::Mutex<int> m_loadMtx {};
         arc::Mutex<int> m_downloadMtx {};
 
-        int m_activeUserID { -1 };
+        std::vector<int> m_activeUserID { };
         int m_highestSentMessageID {};
         int m_highestReceivedMessageID {};
         int m_temporarySentID {};
