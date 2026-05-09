@@ -1,7 +1,5 @@
 #include "ChatHandler.hpp"
-#include "ChatLayer.hpp"
 #include "ChatMenu.hpp"
-#include "Constants.hpp"
 #include <Geode/utils/coro.hpp>
 #include <algorithm>
 #include <utility>
@@ -64,10 +62,17 @@ namespace BetterMessages {
         auto button { ChatMenu::get()->getTabButtonByTag(userID) };
         if (button) button->setSelectedSprite(true);
         restoreChat(userID);
-   }
+    }
 
-    void ChatHandler::sendMessage(std::string content, std::string subject) {
-
+    void ChatHandler::refreshChat(int userID) {
+        if (m_isRefreshing) return;
+        m_isRefreshing = true;
+        auto activeUserID { getActiveUserID() };
+        if (userID == -1 || activeUserID != userID) return;
+        auto const& history { m_chats[userID].history };
+        log::info("New history size: {}", history.size());
+        ChatMenu::get()->restoreChatHistory(history);
+        m_isRefreshing = false;
     }
 
     arc::Future<> ChatHandler::loadMessages() {
@@ -156,18 +161,20 @@ namespace BetterMessages {
     }
 
     arc::Future<> ChatHandler::downloadChats() {
+        co_await m_loadMtx.lock();  // don't wanna have loadMessages() change history while downloading chats
+        co_await m_downloadMtx.lock();
+
+        log::info("Downloading chats...");
         for (auto& [userID, chat] : m_chats) {
             co_await downloadChat(userID);
         }
         sortChats();
+        refreshChat(getActiveUserID());
     }
 
     arc::Future<> ChatHandler::downloadChat(int userID) {
         auto it { m_chats.find(userID) };
         if (it == m_chats.end()) co_return;
-
-        co_await m_loadMtx.lock();  // don't wanna have loadMessages() change history while downloading chats
-        co_await m_downloadMtx.lock();
 
         auto gm { GameLevelManager::get() };
         prev_DMD = this;  // just in case
@@ -201,11 +208,37 @@ namespace BetterMessages {
         }
     }
 
-    void ChatHandler::uploadMessageFinished(int accountID) {
+    arc::Future<> ChatHandler::sendMessage(int userID, std::string content, std::string subject) {
+        co_await m_uploadMtx.lock();
 
+        if (userID == -1) co_return;
+
+        auto gm { GameLevelManager::get() };
+
+        prev_UMD = this;
+        std::swap(prev_UMD, gm->m_uploadMessageDelegate);
+
+        auto accountID { gm->accountIDForUserID(userID) };
+
+        gm->uploadUserMessage(accountID, subject, content);
+        co_await m_uploadNotif.notified();
+
+        co_await loadMessages();
+
+        if (getActiveUserID() == userID) {
+            refreshChat(userID);
+        }
+    }
+
+    void ChatHandler::uploadMessageFinished(int accountID) {
+        log::info("Message sent successfully");
+        std::swap(prev_UMD, GameLevelManager::get()->m_uploadMessageDelegate);
+        m_uploadNotif.notifyAll();
     }
 
     void ChatHandler::uploadMessageFailed(int accountID) {
-
+        log::info("Message failed to send");
+        std::swap(prev_UMD, GameLevelManager::get()->m_uploadMessageDelegate);
+        m_uploadNotif.notifyAll();
     }
 }

@@ -6,7 +6,7 @@
 using namespace geode::prelude;
 
 namespace BetterMessages {
-    class ChatMenu final : public CCMenu {
+    class ChatMenu final : public CCMenu, public TextInputDelegate {
     public:
         static Ref<ChatMenu> get();
 
@@ -33,10 +33,16 @@ namespace BetterMessages {
         static ChatMenu* create();
         bool init() override;
 
+        void textInputOpened(CCTextInputNode* node) override;
+        void textInputClosed(CCTextInputNode* node) override;
+        void enterPressed(CCTextInputNode* node) override;
+
         CCMenu* m_tabButtonMenu;
         NineSlice* m_tabButtonMenuBG;
 
         ScrollLayer* m_chatHistoryLayer;
         TextInput* m_chatInput;
+
+        bool m_focused {};
     };
 }

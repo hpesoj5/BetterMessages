@@ -14,5 +14,13 @@
 	"dependencies": {
 		"geode.node-ids": ">=v1.23.3",
 		"alk.better-touch-prio": ">=1.0.17"
+	},
+	"settings": {
+		"sendMessage": {
+			"type": "keybind",
+			"name": "Send",
+			"default": "Enter",
+			"allow-in-text-inputs": true
+		}
 	}
 }

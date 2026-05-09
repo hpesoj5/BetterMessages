@@ -57,6 +57,16 @@ namespace BetterMessages {
         m_chatInput->setPosition(0.f, 0.f);
         m_chatInput->setID("ChatInput"_spr);
         m_chatInput->setMaxCharCount(200);
+        m_chatInput->setDelegate(this);
+        m_chatInput->getInputNode()->addEventListener(
+            KeybindSettingPressedEventV3(Mod::get(), "sendMessage"),
+            [this](Keybind const& keybind, bool down, bool repeat, double timestamp) {
+                if (down && !repeat) {
+                    log::info("Enter pressed. focused: {}", m_focused);
+                    if (m_focused) enterPressed(m_chatInput->getInputNode());
+                }
+            }
+        );
 
         addChild(m_chatInput);
 
@@ -138,7 +148,9 @@ namespace BetterMessages {
     }
 
     void ChatMenu::restoreChatHistory(std::vector<Ref<GJUserMessage>> const& history) {
-        m_chatHistoryLayer->m_contentLayer->removeAllChildren();
+        auto firstChild { m_chatHistoryLayer->m_contentLayer->getChildByIndex(0) };
+        auto userID { firstChild ? firstChild->getTag() : -1 };
+        if (userID != ChatHandler::get()->getActiveUserID()) m_chatHistoryLayer->m_contentLayer->removeAllChildren();
         auto username { GJAccountManager::get()->m_username };
         auto zOrder { m_chatHistoryLayer->getZOrder() };
 
@@ -148,14 +160,43 @@ namespace BetterMessages {
             else line += static_cast<std::string>(message->m_username) + ": ";
             line += static_cast<std::string>(message->m_content);
 
+            auto existing { m_chatHistoryLayer->m_contentLayer->getChildByID(numToString(message->m_messageID)) };
+            if (existing) {
+                auto label { static_cast<CCLabelBMFont*>(existing) };
+                if (label->getString() != line) label->setString(line.c_str());
+                continue;
+            }
+
             auto label { CCLabelBMFont::create(line.c_str(), "chatFont.fnt") };
             label->setAnchorPoint({ 0.f, 0.5f });
             m_chatHistoryLayer->m_contentLayer->addChild(label, zOrder + 1);
+            label->setTag(message->m_userID);
+            label->setID(numToString(message->m_messageID));
         }
         m_chatHistoryLayer->m_contentLayer->updateLayout();
+        log::info("history restored");
     }
 
     TabButton* ChatMenu::getTabButtonByTag(int tag) {
         return static_cast<TabButton*>(m_tabButtonMenu->getChildByTag(tag));
+    }
+
+    void ChatMenu::textInputOpened(CCTextInputNode* node) {
+        log::info("Chat node opened");
+        m_focused = true;
+    }
+
+    void ChatMenu::textInputClosed(CCTextInputNode* node) {
+        log::info("Chat node closed");
+        m_focused = false;
+    }
+
+    void ChatMenu::enterPressed(CCTextInputNode* node) {
+        log::info("enter pressed");
+        std::string str { node->getString() };
+        node->setString("");
+        auto ch { ChatHandler::get() };
+        auto userID { ch->getActiveUserID() };
+        async::spawn(ch->sendMessage(userID, str));
     }
 }

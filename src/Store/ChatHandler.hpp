@@ -23,7 +23,8 @@ namespace BetterMessages {
         static ChatHandler* get();
 
         void switchChat(int userID);
-        void sendMessage(std::string content, std::string subject = " ");
+        void refreshChat(int userID);
+        arc::Future<> sendMessage(int userID, std::string content, std::string subject = " ");
 
         arc::Future<> loadMessages();
         bool isLoading() const;
@@ -69,8 +70,10 @@ namespace BetterMessages {
 
         arc::Notify m_loadNotif;
         arc::Notify m_downloadNotif;
+        arc::Notify m_uploadNotif;
         arc::Mutex<int> m_loadMtx {};
         arc::Mutex<int> m_downloadMtx {};
+        arc::Mutex<int> m_uploadMtx {};
 
         std::vector<int> m_activeUserID { };
         int m_highestSentMessageID {};
@@ -79,5 +82,6 @@ namespace BetterMessages {
         int m_temporaryReceivedID {};
         bool m_isLoading {};
         bool m_stopLoading {};
+        bool m_isRefreshing {};
     };
 }
