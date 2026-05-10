@@ -186,9 +186,9 @@ namespace BetterMessages {
         auto userID { ch->getActiveUserID() };
         async::spawn(
             ch->sendMessage(userID, str),
-            [userID] {
-                if (userID == ChatHandler::get()->getActiveUserID())
-                ChatHandler::get()->refreshChat(userID);
+            [ch, userID] {
+                if (userID == ch->getActiveUserID())
+                ch->refreshChat(userID);
             }
         );
     }
