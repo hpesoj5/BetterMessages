@@ -86,6 +86,12 @@ namespace BetterMessages {
         m_chatHistoryLayer->setPosition(0.f, m_chatInput->getContentHeight());
         m_chatHistoryLayer->setID("ChatHistory"_spr);
 
+        m_chatLoadingSpinner = LoadingSpinner::create(contentWidth * 0.03f);
+        m_chatLoadingSpinner->setAnchorPoint({ 1.f, 0.f });
+        m_chatLoadingSpinner->setPosition(contentWidth - Constants::ChatLayer::PADDING, Constants::ChatLayer::PADDING);
+        addChild(m_chatLoadingSpinner);
+        m_chatLoadingSpinner->setVisible(false);
+
         addChild(m_chatHistoryLayer);
 
         updateLayout();
@@ -96,6 +102,8 @@ namespace BetterMessages {
     ChatMenu::~ChatMenu() {
         log::info("ChatMenu instance destroyed");
     }
+
+    void ChatMenu::setLoadingSpinner(bool visible) { m_chatLoadingSpinner->setVisible(visible); }
 
     void ChatMenu::updateZOrder(int zOrder) {
         setZOrder(zOrder);
@@ -110,6 +118,7 @@ namespace BetterMessages {
 
         m_chatInput->setZOrder(zOrder + 1);
         m_chatHistoryLayer->setZOrder(zOrder + 1);
+        m_chatLoadingSpinner->setZOrder(zOrder + 2);
 
         auto chatHistorySize { m_chatHistoryLayer->m_contentLayer->getChildrenCount() };
         for (auto i { 0uz }; i < chatHistorySize; ++i) {

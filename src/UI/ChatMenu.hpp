@@ -10,6 +10,8 @@ namespace BetterMessages {
     public:
         static Ref<ChatMenu> get();
 
+        void setLoadingSpinner(bool visible);
+
         void updateZOrder(int zOrder);
         void goToUser(GJUserScore* user);
         void defocus();
@@ -42,6 +44,8 @@ namespace BetterMessages {
 
         ScrollLayer* m_chatHistoryLayer;
         TextInput* m_chatInput;
+
+        LoadingSpinner* m_chatLoadingSpinner;
 
         bool m_focused {};
     };

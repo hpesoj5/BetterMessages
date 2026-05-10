@@ -29,7 +29,6 @@ namespace BetterMessages {
         arc::Future<> sendMessage(int userID, std::string content, std::string subject = "Sent with BetterMessages");
 
         arc::Future<> loadMessages();
-        bool isLoading() const;
 
         void saveToDisk();
         void restoreFromDisk();
@@ -80,7 +79,6 @@ namespace BetterMessages {
         int m_highestReceivedMessageID {};
         int m_temporarySentID {};
         int m_temporaryReceivedID {};
-        bool m_isLoading {};
         bool m_stopLoading {};
         bool m_isRefreshing {};
     };

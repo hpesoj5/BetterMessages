@@ -10,8 +10,6 @@ namespace BetterMessages {
         return &handler;
     }
 
-    bool ChatHandler::isLoading() const { return m_isLoading; }
-
     int ChatHandler::getActiveUserID() const { return m_activeUserID.empty() ? -1 : m_activeUserID.back(); }
 
     void ChatHandler::setActiveUserID(int userID) {
@@ -81,7 +79,7 @@ namespace BetterMessages {
 
         log::info("Fetching messages...");
         auto gm { GameLevelManager::get() };
-        m_isLoading = true;
+        co_await async::waitForMainThread([] { ChatMenu::get()->setLoadingSpinner(true); });
 
         prev_MLD = this;  // just in case
         std::swap(prev_MLD, gm->m_messageListDelegate);
@@ -111,7 +109,6 @@ namespace BetterMessages {
         }
 
         std::swap(prev_MLD, gm->m_messageListDelegate);
-        m_isLoading = false;
 
         if (m_temporaryReceivedID > m_highestReceivedMessageID) m_highestReceivedMessageID = m_temporaryReceivedID;
         if (m_temporarySentID > m_highestSentMessageID) m_highestSentMessageID = m_temporarySentID;
@@ -123,6 +120,7 @@ namespace BetterMessages {
 
         co_await downloadChats();
         log::info("Chats restored");
+        co_await async::waitForMainThread([] { ChatMenu::get()->setLoadingSpinner(false); });
     }
 
     void ChatHandler::loadMessagesFinished(CCArray* messages, char const* key) {
