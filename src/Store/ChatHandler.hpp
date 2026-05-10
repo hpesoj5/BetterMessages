@@ -26,7 +26,7 @@ namespace BetterMessages {
         void restoreChat(int userID);
         void switchChat(int userID);
         void refreshChat(int userID);
-        arc::Future<> sendMessage(int userID, std::string content, std::string subject = " ");
+        arc::Future<> sendMessage(int userID, std::string content, std::string subject = "Sent with BetterMessages");
 
         arc::Future<> loadMessages();
         bool isLoading() const;
