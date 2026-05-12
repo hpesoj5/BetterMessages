@@ -29,10 +29,10 @@ struct matjson::Serialize<Ref<GJUserMessage>> {
         obj["messageID"] = value->m_messageID;
         obj["accountID"] = value->m_accountID;
         obj["userID"] = value->m_userID;
-        obj["title"] = value->m_title;
-        obj["content"] = value->m_content;
-        obj["username"] = value->m_username;
-        obj["uploadDate"] = value->m_uploadDate;
+        obj["title"] = static_cast<std::string>(value->m_title);
+        obj["content"] = static_cast<std::string>(value->m_content);
+        obj["username"] = static_cast<std::string>(value->m_username);
+        obj["uploadDate"] = static_cast<std::string>(value->m_uploadDate);
         obj["read"] = value->m_read;
         obj["outgoing"] = value->m_outgoing;
         obj["toggled"] = value->m_toggled;
