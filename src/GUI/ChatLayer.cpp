@@ -1,6 +1,7 @@
 #include "ChatLayer.hpp"
 #include "ProfileSelectMenu.hpp"
 #include "ChatMenu.hpp"
+#include "ChatHandler.hpp"
 
 namespace BetterMessages {
     Ref<ChatLayer> ChatLayer::get() {
@@ -53,7 +54,7 @@ namespace BetterMessages {
 
     void ChatLayer::open() {
         auto scene { CCScene::get() };
-        log::info("Open instance");
+        // log::info("Open instance");
         auto zOrder { scene->getHighestChildZ() + 1 };
         scene->addChild(this, zOrder);
 
@@ -72,11 +73,12 @@ namespace BetterMessages {
     }
 
     void ChatLayer::close() {
-        log::info("Close instance");
+        // log::info("Close instance");
         ProfileSelectMenu::get()->resetInput();
         ProfileSelectMenu::get()->retrieveFriends();
         ChatMenu::get()->defocus();
         this->removeFromParent();
+        ChatHandler::get()->saveToDisk();
 
         m_isOpen = false;
     }

@@ -11,13 +11,13 @@
 using namespace geode::prelude;
 
 namespace BetterMessages {
-
     struct Chat {
         std::vector<Ref<GJUserMessage>> history {};
         std::string draftMessage {};
         int unreadCount {};
     };
-
+}
+namespace BetterMessages {
     class ChatHandler final : MessageListDelegate, DownloadMessageDelegate, UploadMessageDelegate {
     public:
         static ChatHandler* get();
@@ -39,7 +39,7 @@ namespace BetterMessages {
 
     private:
         ChatHandler() = default;
-        ~ChatHandler() = default;
+        ~ChatHandler();
 
         ChatHandler(ChatHandler const& other) = delete;
         ChatHandler(ChatHandler&& other) = delete;

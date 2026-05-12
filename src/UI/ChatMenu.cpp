@@ -178,15 +178,9 @@ namespace BetterMessages {
         return static_cast<TabButton*>(m_tabButtonMenu->getChildByTag(tag));
     }
 
-    void ChatMenu::textInputOpened(CCTextInputNode* node) {
-        log::info("Chat node opened");
-        m_focused = true;
-    }
+    void ChatMenu::textInputOpened(CCTextInputNode* node) { m_focused = true; }
 
-    void ChatMenu::textInputClosed(CCTextInputNode* node) {
-        log::info("Chat node closed");
-        m_focused = false;
-    }
+    void ChatMenu::textInputClosed(CCTextInputNode* node) { m_focused = false; }
 
     void ChatMenu::enterPressed(CCTextInputNode* node) {
         std::string str { node->getString() };
@@ -196,8 +190,9 @@ namespace BetterMessages {
         async::spawn(
             ch->sendMessage(userID, str),
             [ch, userID] {
-                if (userID == ch->getActiveUserID())
-                ch->refreshChat(userID);
+                if (userID == ch->getActiveUserID()) {
+                    ch->refreshChat(userID);
+                }
             }
         );
     }

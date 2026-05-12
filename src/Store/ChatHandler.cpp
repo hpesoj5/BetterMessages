@@ -1,5 +1,6 @@
 #include "ChatHandler.hpp"
 #include "ChatMenu.hpp"
+#include "Serialisation.hpp"
 #include <Geode/utils/coro.hpp>
 #include <algorithm>
 #include <utility>
@@ -8,6 +9,16 @@ namespace BetterMessages {
     ChatHandler* ChatHandler::get() {
         static ChatHandler handler;
         return &handler;
+    }
+
+    ChatHandler::~ChatHandler() { saveToDisk(); }
+
+    void ChatHandler::saveToDisk() {
+        Mod::get()->setSavedValue("chatData", m_chats);
+    }
+
+    void ChatHandler::restoreFromDisk() {
+        m_chats = Mod::get()->getSavedValue<std::unordered_map<int, Chat>>("chatData");
     }
 
     int ChatHandler::getActiveUserID() const { return m_activeUserID.empty() ? -1 : m_activeUserID.back(); }
@@ -68,7 +79,12 @@ namespace BetterMessages {
         if (m_isRefreshing) return;
         m_isRefreshing = true;
         auto activeUserID { getActiveUserID() };
-        if (userID == -1 || activeUserID != userID) return;
+
+        if (userID == -1 || activeUserID != userID) {
+            m_isRefreshing = false;
+            return;
+        }
+
         auto const& history { m_chats[userID].history };
         ChatMenu::get()->restoreChatHistory(history);
         m_isRefreshing = false;
@@ -116,10 +132,8 @@ namespace BetterMessages {
         m_temporaryReceivedID = 0;
         m_temporarySentID = 0;
 
-        sortChats();
-
         co_await downloadChats();
-        log::info("Chats restored");
+        // log::info("Chats restored");
         co_await async::waitForMainThread([] { ChatMenu::get()->setLoadingSpinner(false); });
     }
 
@@ -135,7 +149,7 @@ namespace BetterMessages {
                 else {
                     // log::info("New sent message fetched: {}\nRecipient: {}\nTime since: {}\nSubject: {}\nContent: {}", ID, message->m_username, message->m_uploadDate, message->m_title, message->m_content);
                     auto& chat { m_chats[userID] };
-                    chat.history.push_back(message);
+                    if (std::none_of(chat.history.begin(), chat.history.end(), [message](Ref<GJUserMessage> const& msg) { return message->m_messageID == msg->m_messageID; })) chat.history.push_back(message);
                 }
                 if (ID > m_temporarySentID) m_temporarySentID = ID;
             }
@@ -144,8 +158,10 @@ namespace BetterMessages {
                 else {
                     // log::info("New received message fetched: {}\nSender: {}\nTime since: {}\nSubject: {}\nContent: {}", ID, message->m_username, message->m_uploadDate, message->m_title, message->m_content);
                     auto& chat { m_chats[userID] };
-                    chat.history.push_back(message);
-                    ++chat.unreadCount;
+                    if (std::none_of(chat.history.begin(), chat.history.end(), [message](Ref<GJUserMessage> const& msg) { return message->m_messageID == msg->m_messageID; })) {
+                        chat.history.push_back(message);
+                        ++chat.unreadCount;
+                    }
                 }
                 if (ID > m_temporaryReceivedID) m_temporaryReceivedID = ID;
             }

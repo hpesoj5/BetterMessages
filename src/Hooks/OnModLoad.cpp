@@ -7,6 +7,7 @@ using Constants::ChatHandler::PollRate;
 
 $on_mod(Loaded) {
     auto chatLayer { BetterMessages::ChatLayer::get() };
+    BetterMessages::ChatHandler::get()->restoreFromDisk();
 
     arc::Notify notify;
     async::spawn([chatLayer, notify] -> arc::Future<> {
@@ -34,7 +35,7 @@ $on_mod(Loaded) {
         auto ch { BetterMessages::ChatHandler::get() };
         while (true) {
             co_await ch->loadMessages();
-            queueInMainThread([ch] { ch->refreshChat(ch->getActiveUserID()); });
+            co_await async::waitForMainThread([ch] { ch->refreshChat(ch->getActiveUserID()); });
             co_await notify.notified();
         }
     });

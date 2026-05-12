@@ -89,7 +89,7 @@ namespace BetterMessages {
         this->removeFromParent();
         par->updateLayout();
         auto userID { sender->getTag() };
-        log::info("Chat {} closed", userID);
+        // log::info("Chat {} closed", userID);
         auto ch { ChatHandler::get() };
         auto activeUserID { ch->getActiveUserID() };
         ch->removeUserID(userID);
@@ -101,7 +101,7 @@ namespace BetterMessages {
 
     void TabButton::select(CCObject* sender) {
         auto userID { sender->getTag() };
-        log::info("Switched to {}", userID);
+        // log::info("Switched to {}", userID);
         ChatHandler::get()->switchChat(userID);
     }
 
