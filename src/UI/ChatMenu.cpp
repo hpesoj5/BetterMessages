@@ -2,6 +2,7 @@
 #include "ChatHandler.hpp"
 #include "ChatMenu.hpp"
 #include "TabButton.hpp"
+#include <ranges>
 
 namespace BetterMessages {
     Ref<ChatMenu> ChatMenu::get() {
@@ -71,16 +72,16 @@ namespace BetterMessages {
         m_chatHistoryLayer = ScrollLayer::create({ contentWidth, contentHeight - m_tabButtonMenu->getContentHeight() - m_chatInput->getContentHeight() }, true, true);
 
         m_chatHistoryLayer->m_contentLayer->setLayout(ColumnLayout::create()
-            ->setAxisReverse(true)
-            ->setGap(10.f)
-            ->setPadding({ Constants::ChatLayer::PADDING, 0.f, 0.f, Constants::ChatLayer::PADDING / 2.f })
-            ->setDefaultScaleLimits(0.5f, 0.5f)
+            ->setGap(5.f)
+            ->setPadding({ Constants::ChatLayer::PADDING, Constants::ChatLayer::PADDING/ 2.f, Constants::ChatLayer::PADDING, Constants::ChatLayer::PADDING / 2.f })
+            ->setAutoScale(false)
             ->setAxisAlignment(AxisAlignment::Start)
             ->setCrossAxisAlignment(AxisAlignment::Start)
             ->setCrossAxisLineAlignment(AxisAlignment::Start)
-            ->setAutoGrowAxis(contentHeight - m_tabButtonMenu->getContentHeight() - m_chatInput->getContentHeight())
+            ->setAutoGrowAxis(0.f)
         );
 
+        m_chatHistoryLayer->m_contentLayer->ignoreAnchorPointForPosition(false);
         m_chatHistoryLayer->ignoreAnchorPointForPosition(false);
         m_chatHistoryLayer->setAnchorPoint({ 0.f, 0.f });
         m_chatHistoryLayer->setPosition(0.f, m_chatInput->getContentHeight());
@@ -104,6 +105,11 @@ namespace BetterMessages {
     }
 
     void ChatMenu::setLoadingSpinner(bool visible) { m_chatLoadingSpinner->setVisible(visible); }
+
+    void ChatMenu::enableScrollWheel(bool enabled) {
+        m_chatHistoryLayer->enableScrollWheel(enabled);
+        log::info("ChatHistoryLayer scrollWheel {}", enabled ? "enabled" : "disabled");
+    }
 
     void ChatMenu::updateZOrder(int zOrder) {
         setZOrder(zOrder);
@@ -155,11 +161,13 @@ namespace BetterMessages {
     }
 
     void ChatMenu::restoreChatHistory(std::vector<Ref<GJUserMessage>> const& history) {
-        m_chatHistoryLayer->m_contentLayer->removeAllChildren();
+        auto cl { m_chatHistoryLayer->m_contentLayer };
+        cl->removeAllChildren();
         auto username { GJAccountManager::get()->m_username };
         auto zOrder { m_chatHistoryLayer->getZOrder() };
+        auto contentWidth { m_chatHistoryLayer->getContentWidth() };
 
-        for (auto const& message : history) {
+        for (auto const& message : history | std::views::reverse) {
             std::string line {};
             if (message->m_outgoing) line += static_cast<std::string>(username) + ": ";
             else line += static_cast<std::string>(message->m_username) + ": ";
@@ -167,11 +175,14 @@ namespace BetterMessages {
 
             auto label { CCLabelBMFont::create(line.c_str(), "chatFont.fnt") };
             label->setAnchorPoint({ 0.f, 0.5f });
-            m_chatHistoryLayer->m_contentLayer->addChild(label, zOrder + 1);
+            cl->addChild(label, zOrder + 1);
             label->setTag(message->m_userID);
             label->setID(numToString(message->m_messageID));
+            label->setScale(0.5f);
+            label->setWidth(m_chatHistoryLayer->getContentWidth() - 2 * Constants::ChatLayer::PADDING);
+            label->setLineBreakWithoutSpace(true);
         }
-        m_chatHistoryLayer->m_contentLayer->updateLayout();
+        cl->updateLayout();
     }
 
     TabButton* ChatMenu::getTabButtonByTag(int tag) {

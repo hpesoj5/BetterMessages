@@ -11,6 +11,7 @@ namespace BetterMessages {
         static Ref<ChatMenu> get();
 
         void setLoadingSpinner(bool visible);
+        void enableScrollWheel(bool enabled = true);
 
         void updateZOrder(int zOrder);
         void goToUser(GJUserScore* user);

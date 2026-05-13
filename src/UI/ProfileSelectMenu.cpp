@@ -60,6 +60,11 @@ namespace BetterMessages {
 
     ProfileSelectMenu::~ProfileSelectMenu() {}
 
+    void ProfileSelectMenu::enableScrollWheel(bool enabled) {
+        m_profileScrollLayer->enableScrollWheel(enabled);
+        log::info("ProfileScrollLayer scrollWheel {}", enabled ? "enabled" : "disabled");
+    }
+
     void ProfileSelectMenu::retrieveFriends() {
         m_prevULD = this;
         std::swap(m_prevULD, GameLevelManager::get()->m_userListDelegate);

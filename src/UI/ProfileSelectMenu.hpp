@@ -9,6 +9,8 @@ namespace BetterMessages {
     public:
         static Ref<ProfileSelectMenu> get();
 
+        void enableScrollWheel(bool enabled = true);
+
         void updateZOrder(int zOrder);
         void retrieveFriends();
         void updateUsers(CCArray* users);
