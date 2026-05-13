@@ -62,7 +62,7 @@ namespace BetterMessages {
 
     void ProfileSelectMenu::enableScrollWheel(bool enabled) {
         m_profileScrollLayer->enableScrollWheel(enabled);
-        log::info("ProfileScrollLayer scrollWheel {}", enabled ? "enabled" : "disabled");
+        log::debug("ProfileScrollLayer scrollWheel {}", enabled ? "enabled" : "disabled");
     }
 
     void ProfileSelectMenu::retrieveFriends() {

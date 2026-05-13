@@ -101,14 +101,14 @@ namespace BetterMessages {
     }
 
     ChatMenu::~ChatMenu() {
-        log::info("ChatMenu instance destroyed");
+        log::debug("ChatMenu instance destroyed");
     }
 
     void ChatMenu::setLoadingSpinner(bool visible) { m_chatLoadingSpinner->setVisible(visible); }
 
     void ChatMenu::enableScrollWheel(bool enabled) {
         m_chatHistoryLayer->enableScrollWheel(enabled);
-        log::info("ChatHistoryLayer scrollWheel {}", enabled ? "enabled" : "disabled");
+        log::debug("ChatHistoryLayer scrollWheel {}", enabled ? "enabled" : "disabled");
     }
 
     void ChatMenu::updateZOrder(int zOrder) {
@@ -183,6 +183,7 @@ namespace BetterMessages {
             label->setLineBreakWithoutSpace(true);
         }
         cl->updateLayout();
+        cl->setContentHeight(std::max(cl->getContentHeight(), m_chatHistoryLayer->getContentHeight()));
     }
 
     TabButton* ChatMenu::getTabButtonByTag(int tag) {

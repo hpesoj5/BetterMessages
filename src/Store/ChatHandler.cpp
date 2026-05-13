@@ -93,7 +93,7 @@ namespace BetterMessages {
     arc::Future<> ChatHandler::loadMessages() {
         co_await m_loadMtx.lock();
 
-        log::info("Fetching messages...");
+        log::debug("Fetching messages...");
         auto gm { GameLevelManager::get() };
         co_await async::waitForMainThread([] { ChatMenu::get()->setLoadingSpinner(true); });
 
@@ -179,7 +179,7 @@ namespace BetterMessages {
         co_await m_loadMtx.lock();  // don't wanna have loadMessages() change history while downloading chats
         co_await m_downloadMtx.lock();
 
-        log::info("Downloading chats...");
+        log::debug("Downloading chats...");
         for (auto& [userID, chat] : m_chats) {
             co_await downloadChat(userID);
         }

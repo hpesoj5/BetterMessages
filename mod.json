@@ -8,9 +8,10 @@
 	},
 	"id": "hpesoj5.bettermessages",
 	"name": "BetterMessages",
-	"version": "v1.0.0-alpha",
+	"version": "v1.0.0-beta",
 	"developer": "hpesoj5",
 	"description": "Improves the message system in Geometry Dash!",
+	"tags": ["universal", "enhancement", "interface"],
 	"dependencies": {
 		"geode.node-ids": ">=v1.23.3",
 		"alk.better-touch-prio": ">=1.0.17"
