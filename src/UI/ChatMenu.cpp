@@ -28,8 +28,7 @@ namespace BetterMessages {
         auto winSize { CCDirector::get()->getWinSize() };
 
         setContentSize({ winSize.width, winSize.height / 2.f });
-        setAnchorPoint({ 0.f, 0.f });
-        setPosition(0.f, 0.f);
+        setAnchorPoint({ 0.f, 0.f }); setPosition(0.f, 0.f);
 
         auto [contentWidth, contentHeight] { getContentSize() };
         m_tabButtonMenu = CCMenu::create();
@@ -87,15 +86,11 @@ namespace BetterMessages {
         m_chatHistoryLayer->setPosition(0.f, m_chatInput->getContentHeight());
         m_chatHistoryLayer->setID("ChatHistory"_spr);
 
-        m_chatLoadingSpinner = LoadingSpinner::create(contentWidth * 0.03f);
-        m_chatLoadingSpinner->setAnchorPoint({ 1.f, 0.f });
-        m_chatLoadingSpinner->setPosition(contentWidth - Constants::ChatLayer::PADDING, Constants::ChatLayer::PADDING);
-        addChild(m_chatLoadingSpinner);
-        m_chatLoadingSpinner->setVisible(false);
-
         addChild(m_chatHistoryLayer);
 
         updateLayout();
+
+        m_chatLoadingSpinner = nullptr;
 
         return true;
     }
@@ -104,7 +99,28 @@ namespace BetterMessages {
         log::debug("ChatMenu instance destroyed");
     }
 
-    void ChatMenu::setLoadingSpinner(bool visible) { m_chatLoadingSpinner->setVisible(visible); }
+    void ChatMenu::setLoading(bool loading) { m_isLoading = loading; }
+    bool ChatMenu::isLoading() const { return m_isLoading; }
+
+    void ChatMenu::setLoadingSpinner(bool visible) {
+        if (m_chatLoadingSpinner) {
+            m_chatLoadingSpinner->removeFromParent();
+            m_chatLoadingSpinner = nullptr;
+        }
+        if (visible) {
+            auto contentWidth { getContentWidth() };
+            m_chatLoadingSpinner = LoadingSpinner::create(contentWidth * 0.03f);
+            m_chatLoadingSpinner->setAnchorPoint({ 1.f, 0.f });
+            m_chatLoadingSpinner->setPosition(contentWidth - Constants::ChatLayer::PADDING, Constants::ChatLayer::PADDING);
+            addChild(m_chatLoadingSpinner, getZOrder() + 2);
+            // log::info("Loading spinner added");
+        }
+        else {
+            // log::info("Loading spinner removed");
+        }
+
+        updateLayout();
+    }
 
     void ChatMenu::enableScrollWheel(bool enabled) {
         m_chatHistoryLayer->enableScrollWheel(enabled);
@@ -124,13 +140,13 @@ namespace BetterMessages {
 
         m_chatInput->setZOrder(zOrder + 1);
         m_chatHistoryLayer->setZOrder(zOrder + 1);
-        m_chatLoadingSpinner->setZOrder(zOrder + 2);
+        if (m_chatLoadingSpinner) m_chatLoadingSpinner->setZOrder(zOrder + 2);
 
         auto chatHistorySize { m_chatHistoryLayer->m_contentLayer->getChildrenCount() };
         for (auto i { 0uz }; i < chatHistorySize; ++i) {
             m_chatHistoryLayer->m_contentLayer->getChildByIndex(i)->setZOrder(zOrder + 2);
         }
-
+        m_chatHistoryLayer->m_contentLayer->updateLayout();
         updateLayout();
     }
 
@@ -160,7 +176,7 @@ namespace BetterMessages {
         m_chatInput->setString(draft);
     }
 
-    void ChatMenu::restoreChatHistory(std::vector<Ref<GJUserMessage>> const& history) {
+    void ChatMenu::displayChatHistory(std::vector<Ref<GJUserMessage>> const& history) {
         auto cl { m_chatHistoryLayer->m_contentLayer };
         cl->removeAllChildren();
         auto username { GJAccountManager::get()->m_username };

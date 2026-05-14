@@ -10,6 +10,8 @@ namespace BetterMessages {
     public:
         static Ref<ChatMenu> get();
 
+        void setLoading(bool loading);
+        bool isLoading() const;
         void setLoadingSpinner(bool visible);
         void enableScrollWheel(bool enabled = true);
 
@@ -20,7 +22,7 @@ namespace BetterMessages {
         std::string getInputString() const;
         void setInputString(std::string const& draft);
 
-        void restoreChatHistory(std::vector<Ref<GJUserMessage>> const& history);
+        void displayChatHistory(std::vector<Ref<GJUserMessage>> const& history);
 
         TabButton* getTabButtonByTag(int tag);
 
@@ -46,8 +48,9 @@ namespace BetterMessages {
         ScrollLayer* m_chatHistoryLayer;
         TextInput* m_chatInput;
 
-        LoadingSpinner* m_chatLoadingSpinner;
+        LoadingSpinner* m_chatLoadingSpinner {};
 
         bool m_focused {};
+        bool m_isLoading {};
     };
 }

@@ -3,7 +3,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <arc/prelude.hpp>
+#include <arc/sync/Mutex.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -71,7 +71,6 @@ namespace BetterMessages {
         arc::Notify m_downloadNotif;
         arc::Notify m_uploadNotif;
         arc::Mutex<int> m_loadMtx {};
-        arc::Mutex<int> m_downloadMtx {};
         arc::Mutex<int> m_uploadMtx {};
 
         std::vector<int> m_activeUserID { };
@@ -81,5 +80,6 @@ namespace BetterMessages {
         int m_temporaryReceivedID {};
         bool m_stopLoading {};
         bool m_isRefreshing {};
+        bool m_messageSuccessfullyFetched {};
     };
 }

@@ -83,7 +83,7 @@ struct matjson::Serialize<std::unordered_map<int, T, Hash, KeyEqual, Alloc>> {
         Map res;
         for (auto const& [k, v] : value) {
             GEODE_UNWRAP_INTO(auto vv, v.template as<std::decay_t<T>>());
-            res.insert({BetterMessages::stoi(k), vv});
+            res.insert({ BetterMessages::stoi(k), vv });
         }
         return geode::Ok(res);
     }
