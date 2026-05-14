@@ -9,6 +9,12 @@ $on_mod(Loaded) {
     auto chatLayer { BetterMessages::ChatLayer::get() };
     BetterMessages::ChatHandler::get()->restoreFromDisk();
 
+    listenForKeybindSettingPresses("toggleChat", [](Keybind const& keybind, bool down, bool repeat, double) {
+        if (down && !repeat) {
+            BetterMessages::ChatLayer::get()->toggleOpen();
+        }
+    });
+
     arc::Notify notify;
     async::spawn([chatLayer, notify] -> arc::Future<> {
         auto lastLoadTime { asp::Instant::now() };

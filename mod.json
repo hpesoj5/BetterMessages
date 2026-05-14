@@ -22,6 +22,12 @@
 			"name": "Send",
 			"default": "Enter",
 			"allow-in-text-inputs": true
+		},
+		"toggleChat": {
+			"type": "keybind",
+			"name": "Toggle Chat Interface",
+			"default": "F9",
+			"allow-in-text-inputs": true
 		}
 	}
 }
