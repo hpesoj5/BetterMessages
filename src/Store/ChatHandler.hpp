@@ -18,7 +18,7 @@ namespace BetterMessages {
     };
 }
 namespace BetterMessages {
-    class ChatHandler final : MessageListDelegate, DownloadMessageDelegate, UploadMessageDelegate {
+    class ChatHandler final {
     public:
         static ChatHandler* get();
 
@@ -48,24 +48,8 @@ namespace BetterMessages {
 
         void sortChats();
 
-        arc::Future<> downloadChat(int userID);
-        arc::Future<> downloadChats();
-
-        void downloadMessageFinished(GJUserMessage* message) override;
-        void downloadMessageFailed(int id) override;
-
-        void uploadMessageFinished(int accountID) override;
-        void uploadMessageFailed(int accountID) override;
-
-        void loadMessagesFinished(CCArray* messages, char const* key) override;
-        void loadMessagesFailed(char const* key, GJErrorCode errorType) override;
-
         std::unordered_map<int, Chat> m_chats;
         Ref<GJUserMessage> m_downloadedMessage;
-
-        MessageListDelegate* prev_MLD { this };
-        UploadMessageDelegate* prev_UMD { this };
-        DownloadMessageDelegate* prev_DMD { this };
 
         arc::Notify m_loadNotif;
         arc::Notify m_downloadNotif;

@@ -5,7 +5,7 @@
 using namespace geode::prelude;
 
 namespace BetterMessages {
-    class ProfileSelectMenu final : public CCMenu, public UserListDelegate, public TextInputDelegate {
+    class ProfileSelectMenu final : public CCMenu, public TextInputDelegate {
     public:
         static Ref<ProfileSelectMenu> get();
 
@@ -15,7 +15,6 @@ namespace BetterMessages {
 
         void updateZOrder(int zOrder);
         void retrieveFriends();
-        void updateUsers(CCArray* users);
         void resetInput();
 
 
@@ -31,12 +30,11 @@ namespace BetterMessages {
         static ProfileSelectMenu* create();
         bool init() override;
 
-        void getUserListFinished(CCArray* scores, UserListType type) override;
-        void getUserListFailed(UserListType type, GJErrorCode errorType) override;
         void textChanged(CCTextInputNode* input) override;
         void onClose(CCObject*);
 
         void onSelectUser(CCObject* sender);
+        void parseFriendString(std::string const& data);
         void displayUsers();
 
         std::vector<Ref<GJUserScore>> m_users;

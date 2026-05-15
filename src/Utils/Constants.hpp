@@ -22,4 +22,8 @@ namespace Constants {
             Background = 30,
         };
     }
+
+    namespace Requests {
+        inline const std::string SOCIAL_SECRET { "Wmfd2893gb7" };
+    }
 }

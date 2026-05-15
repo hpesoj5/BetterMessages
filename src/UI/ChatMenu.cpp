@@ -215,13 +215,13 @@ namespace BetterMessages {
         node->setString("");
         auto ch { ChatHandler::get() };
         auto userID { ch->getActiveUserID() };
-        async::spawn(
-            ch->sendMessage(userID, str),
-            [ch, userID] {
-                if (userID == ch->getActiveUserID()) {
-                    ch->refreshChat(userID);
-                }
-            }
-        );
+        // async::spawn(
+        //     ch->sendMessage(userID, str),
+        //     [ch, userID] {
+        //         if (userID == ch->getActiveUserID()) {
+        //             ch->refreshChat(userID);
+        //         }
+        //     }
+        // );
     }
 }

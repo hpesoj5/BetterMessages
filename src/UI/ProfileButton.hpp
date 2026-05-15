@@ -17,8 +17,6 @@ namespace BetterMessages {
 
         bool init(float width, float height, GJUserScore* user, CCObject* target, SEL_MenuHandler selector);
 
-        // void draw() override;
-
         CCMenuItemSpriteExtra* m_button;
         SimplePlayer* m_icon;
         CCLabelBMFont* m_name;

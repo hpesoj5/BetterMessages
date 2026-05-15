@@ -8,7 +8,7 @@ using Constants::ChatHandler::PollRate;
 
 $on_mod(Loaded) {
     auto chatLayer { BetterMessages::ChatLayer::get() };
-    BetterMessages::ChatHandler::get()->restoreFromDisk();
+    // BetterMessages::ChatHandler::get()->restoreFromDisk();
 
     listenForKeybindSettingPresses("toggleChat", [](Keybind const& keybind, bool down, bool repeat, double) {
         if (down && !repeat) {
@@ -41,10 +41,10 @@ $on_mod(Loaded) {
     async::spawn([notify] -> arc::Future<> {
         auto ch { BetterMessages::ChatHandler::get() };
         while (true) {
-            co_await ch->loadMessages();
-            co_await async::waitForMainThread([ch] {
-                ch->refreshChat(ch->getActiveUserID());
-            });
+            // co_await ch->loadMessages();
+            // co_await async::waitForMainThread([ch] {
+                // ch->refreshChat(ch->getActiveUserID());
+            // });
             co_await notify.notified();
         }
     });

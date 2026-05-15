@@ -2,6 +2,8 @@
 #include "ChatMenu.hpp"
 #include "ProfileSelectMenu.hpp"
 #include "ProfileButton.hpp"
+#include <algorithm>
+#include <Geode/utils/string.hpp>
 
 namespace BetterMessages {
     Ref<ProfileSelectMenu> ProfileSelectMenu::get() {
@@ -65,12 +67,6 @@ namespace BetterMessages {
         log::debug("ProfileScrollLayer scrollWheel {}", enabled ? "enabled" : "disabled");
     }
 
-    void ProfileSelectMenu::retrieveFriends() {
-        m_prevULD = this;
-        std::swap(m_prevULD, GameLevelManager::get()->m_userListDelegate);
-        GameLevelManager::get()->getUserList(UserListType::Friends);
-    }
-
     void ProfileSelectMenu::updateZOrder(int zOrder) {
         setZOrder(zOrder);
 
@@ -85,9 +81,100 @@ namespace BetterMessages {
         updateLayout();
     }
 
-    void ProfileSelectMenu::textChanged(CCTextInputNode* input) {
-        auto toLower { [](std::string s) { std::transform(s.begin(), s.end(), s.begin(), ::tolower); return s; } };
+    void ProfileSelectMenu::retrieveFriends() {
+        auto accountID { GJAccountManager::get()->m_accountID };
+        std::string gjp2 { GJAccountManager::get()->m_GJP2 };
+        if (accountID <= 0 || gjp2.empty()) return;
+        web::WebRequest req {};
+        req.bodyString(fmt::format(
+        "accountID={}&gjp2={}&secret={}&type={}",
+            accountID,
+            gjp2,
+            Constants::Requests::SOCIAL_SECRET,
+            0
+        ));
+        req.userAgent("");
+        req.header("Content-Type", "application/x-www-form-urlencoded");
 
+        async::spawn(req.post("https://www.boomlings.com/database/getGJUserList20.php"), [this](web::WebResponse res) {
+            if (res.ok()) {
+                parseFriendString(res.string().unwrap());
+                displayUsers();
+            }
+            else log::debug("Get friend list request failed: {}", res.code());
+        });
+    }
+
+    void ProfileSelectMenu::parseFriendString(std::string const& data) {
+        std::vector<std::string> parsed { string::split(data, "|") };
+        log::info("parsed: {}", parsed);
+        auto size { parsed.size() };
+        std::vector<std::vector<std::string>> friends(size);
+        std::transform(parsed.begin(), parsed.end(), friends.begin(), [](std::string const& s) { return string::split(s, ":"); });
+        log::info("friends: {}", friends);
+
+        m_users.clear();
+        m_users.reserve(size);
+        for (auto const& data : friends) {
+            Ref<GJUserScore> user { GJUserScore::create() };
+            for (auto i { 0uz }; i < data.size(); i += 2) {
+                int key { numFromString<int>(data[i]).ok().value() };
+                std::string value { data[i + 1] };
+                log::info("key: {}, value: {}", key, value);
+                switch (key) {
+                case 1:
+                    user->m_userName = value;
+                    break;
+
+                case 2:
+                    user->m_userID = numFromString<int>(value).ok().value();
+                    break;
+
+                case 9:
+                    user->m_iconID = numFromString<int>(value).ok().value();
+                    break;
+
+                case 10:
+                    user->m_color1 = numFromString<int>(value).ok().value();
+                    break;
+
+                case 11:
+                    user->m_color2 = numFromString<int>(value).ok().value();
+                    break;
+
+                case 14:
+                    user->m_iconType = static_cast<IconType>(numFromString<int>(value).ok().value());
+                    break;
+
+                case 15:
+                    user->m_special = numFromString<int>(value).ok().value();
+                    break;
+
+                case 16:
+                    user->m_accountID = numFromString<int>(value).ok().value();
+                    break;
+
+                case 18:
+                    user->m_messageState = numFromString<int>(value).ok().value();
+                    break;
+
+                case 41:
+                    break;
+
+                case 51:
+                    user->m_color3 = numFromString<int>(value).ok().value();
+                    break;
+
+                default:
+                    break;
+                }
+            }
+            m_users.push_back(user);
+        }
+        m_filteredUsers = m_users;
+    }
+
+    void ProfileSelectMenu::textChanged(CCTextInputNode* input) {
         std::string str { input->getString() };
 
         if (str.empty()) m_filteredUsers = m_users;
@@ -96,24 +183,11 @@ namespace BetterMessages {
             auto size { m_users.size() };
             for (auto i { 0uz }; i < size; ++i) {
                 auto user { m_users[i] };
-                if (toLower(user->m_userName).find(toLower(str)) != std::string::npos) {
+                if (string::toLower(user->m_userName).find(string::toLower(str)) != std::string::npos) {
                     m_filteredUsers.push_back(user);
                 }
             }
         }
-        displayUsers();
-    }
-
-    void ProfileSelectMenu::updateUsers(CCArray* users) {
-        auto size { users->count() };
-        m_users.clear();
-        m_users.reserve(size);
-
-        for (auto i { 0uz }; i < size; ++i) {
-            m_users.push_back(static_cast<GJUserScore*>(users->objectAtIndex(i)));
-        }
-
-        m_filteredUsers = m_users;
         displayUsers();
     }
 
@@ -130,23 +204,6 @@ namespace BetterMessages {
 
         m_profileScrollLayer->m_contentLayer->updateLayout();
         m_profileScrollLayer->scrollToTop();
-    }
-
-    void ProfileSelectMenu::getUserListFinished(CCArray* scores, UserListType type) {
-        if (type == UserListType::Friends) {
-            std::swap(m_prevULD, GameLevelManager::get()->m_userListDelegate);
-            updateUsers(scores);
-            // log::info("Get friends list request succeeded");
-        }
-        UserListDelegate::getUserListFinished(scores, type);
-    }
-
-    void ProfileSelectMenu::getUserListFailed(UserListType type, GJErrorCode errorType) {
-        if (type == UserListType::Friends) {
-            std::swap(m_prevULD, GameLevelManager::get()->m_userListDelegate);
-            // log::info("Get friends list request failed");
-        }
-        UserListDelegate::getUserListFailed(type, errorType);
     }
 
     void ProfileSelectMenu::onSelectUser(CCObject* sender) {

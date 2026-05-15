@@ -75,7 +75,7 @@ namespace BetterMessages {
         ChatMenu::get()->defocus();
         ChatMenu::get()->setLoadingSpinner(false);
         this->removeFromParent();
-        ChatHandler::get()->saveToDisk();
+        // ChatHandler::get()->saveToDisk();
 
         m_isOpen = false;
     }

@@ -41,9 +41,7 @@ namespace BetterMessages {
         m_icon->setPosition({ width * 0.15f, height / 2.f });
         auto gm { GameManager::get() };
         m_icon->setColors(gm->colorForIdx(user->m_color1), gm->colorForIdx(user->m_color2));
-
-        // log::info("User {}: glow enabled: {}", user->m_userName, user->m_glowEnabled);
-        if (user->m_glowEnabled) m_icon->setGlowOutline(gm->colorForIdx(user->m_color3));
+        if (user->m_special == 2) m_icon->setGlowOutline(gm->colorForIdx(user->m_color3));
         else m_icon->disableGlowOutline();
 
         m_icon->setScale(0.6f);
@@ -57,6 +55,11 @@ namespace BetterMessages {
         m_name->setScale(getScaleFromLength(user->m_userName.size()));
 
         m_button->addChild(m_name, zOrder + 2);
+
+        if (user->m_messageState == 2) {
+            m_button->setEnabled(false);
+            m_button->setOpacity(127);
+        }
 
         updateLayout();
         return true;
