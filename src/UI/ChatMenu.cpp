@@ -99,9 +99,6 @@ namespace BetterMessages {
         log::debug("ChatMenu instance destroyed");
     }
 
-    void ChatMenu::setLoading(bool loading) { m_isLoading = loading; }
-    bool ChatMenu::isLoading() const { return m_isLoading; }
-
     void ChatMenu::setLoadingSpinner(bool visible) {
         if (m_chatLoadingSpinner) {
             m_chatLoadingSpinner->removeFromParent();
@@ -199,7 +196,9 @@ namespace BetterMessages {
             label->setLineBreakWithoutSpace(true);
         }
         cl->updateLayout();
+        updateLayout();
         cl->setContentHeight(std::max(cl->getContentHeight(), m_chatHistoryLayer->getContentHeight()));
+        log::info("Chat history restored with {} items", history.size());
     }
 
     TabButton* ChatMenu::getTabButtonByTag(int tag) {

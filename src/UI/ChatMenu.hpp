@@ -11,7 +11,6 @@ namespace BetterMessages {
         static Ref<ChatMenu> get();
 
         void setLoading(bool loading);
-        bool isLoading() const;
         void setLoadingSpinner(bool visible);
         void enableScrollWheel(bool enabled = true);
 
@@ -51,6 +50,5 @@ namespace BetterMessages {
         LoadingSpinner* m_chatLoadingSpinner {};
 
         bool m_focused {};
-        bool m_isLoading {};
     };
 }

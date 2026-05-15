@@ -2,8 +2,10 @@
 
 #pragma once
 
+#include "TabButton.hpp"
 #include <Geode/Geode.hpp>
 #include <arc/sync/Mutex.hpp>
+#include <shared_mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -22,13 +24,11 @@ namespace BetterMessages {
     public:
         static ChatHandler* get();
 
-        void saveChat(int userID);
-        void restoreChat(int userID);
         void switchChat(int userID);
         void refreshChat(int userID);
-        arc::Future<> sendMessage(int userID, std::string content, std::string subject = "Sent with BetterMessages");
+        void sendMessage(int userID, std::string content, std::string subject = "Sent with BetterMessages");
 
-        arc::Future<> loadMessages();
+        void loadMessages();
 
         void saveToDisk();
         void restoreFromDisk();
@@ -46,24 +46,24 @@ namespace BetterMessages {
         ChatHandler& operator=(ChatHandler const& other) = delete;
         ChatHandler& operator=(ChatHandler&& other) = delete;
 
+        void parseMessageString(std::string const& data);
         void sortChats();
+
+        friend void TabButton::onClose(CCObject*);
+        void saveChat(int userID);
+        void restoreChat(int userID);
+
+        arc::Mutex<int> m_mtx;
 
         std::unordered_map<int, Chat> m_chats;
         Ref<GJUserMessage> m_downloadedMessage;
 
-        arc::Notify m_loadNotif;
-        arc::Notify m_downloadNotif;
-        arc::Notify m_uploadNotif;
-        arc::Mutex<int> m_loadMtx {};
-        arc::Mutex<int> m_uploadMtx {};
-
-        std::vector<int> m_activeUserID { };
+        std::vector<int> m_activeUserID {};
         int m_highestSentMessageID {};
         int m_highestReceivedMessageID {};
         int m_temporarySentID {};
         int m_temporaryReceivedID {};
         bool m_stopLoading {};
-        bool m_isRefreshing {};
-        bool m_messageSuccessfullyFetched {};
+        bool m_isLoading {};
     };
 }

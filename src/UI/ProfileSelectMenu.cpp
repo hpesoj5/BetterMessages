@@ -97,7 +97,7 @@ namespace BetterMessages {
         req.header("Content-Type", "application/x-www-form-urlencoded");
 
         async::spawn(req.post("https://www.boomlings.com/database/getGJUserList20.php"), [this](web::WebResponse res) {
-            if (res.ok()) {
+            if (res.ok() && res.string().isOk()) {
                 parseFriendString(res.string().unwrap());
                 displayUsers();
             }
@@ -107,11 +107,11 @@ namespace BetterMessages {
 
     void ProfileSelectMenu::parseFriendString(std::string const& data) {
         std::vector<std::string> parsed { string::split(data, "|") };
-        log::info("parsed: {}", parsed);
+        // log::info("parsed: {}", parsed);
         auto size { parsed.size() };
         std::vector<std::vector<std::string>> friends(size);
         std::transform(parsed.begin(), parsed.end(), friends.begin(), [](std::string const& s) { return string::split(s, ":"); });
-        log::info("friends: {}", friends);
+        // log::info("friends: {}", friends);
 
         m_users.clear();
         m_users.reserve(size);
@@ -120,56 +120,56 @@ namespace BetterMessages {
             for (auto i { 0uz }; i < data.size(); i += 2) {
                 int key { numFromString<int>(data[i]).ok().value() };
                 std::string value { data[i + 1] };
-                log::info("key: {}, value: {}", key, value);
+                // log::info("key: {}, value: {}", key, value);
                 switch (key) {
                 case 1:
                     user->m_userName = value;
                     break;
 
                 case 2:
-                    user->m_userID = numFromString<int>(value).ok().value();
+                    user->m_userID = numFromString<int>(value).unwrapOr(-1);
                     break;
 
                 case 9:
-                    user->m_iconID = numFromString<int>(value).ok().value();
+                    user->m_iconID = numFromString<int>(value).unwrapOr(-1);
                     break;
 
                 case 10:
-                    user->m_color1 = numFromString<int>(value).ok().value();
+                    user->m_color1 = numFromString<int>(value).unwrapOr(-1);
                     break;
 
                 case 11:
-                    user->m_color2 = numFromString<int>(value).ok().value();
+                    user->m_color2 = numFromString<int>(value).unwrapOr(-1);
                     break;
 
                 case 14:
-                    user->m_iconType = static_cast<IconType>(numFromString<int>(value).ok().value());
+                    user->m_iconType = static_cast<IconType>(numFromString<int>(value).unwrapOrDefault());
                     break;
 
                 case 15:
-                    user->m_special = numFromString<int>(value).ok().value();
+                    user->m_special = numFromString<int>(value).unwrapOr(-1);
                     break;
 
                 case 16:
-                    user->m_accountID = numFromString<int>(value).ok().value();
+                    user->m_accountID = numFromString<int>(value).unwrapOr(-1);
                     break;
 
                 case 18:
-                    user->m_messageState = numFromString<int>(value).ok().value();
+                    user->m_messageState = numFromString<int>(value).unwrapOr(-1);
                     break;
 
                 case 41:
                     break;
 
                 case 51:
-                    user->m_color3 = numFromString<int>(value).ok().value();
+                    user->m_color3 = numFromString<int>(value).unwrapOr(-1);
                     break;
 
                 default:
                     break;
                 }
             }
-            m_users.push_back(user);
+            if (user->m_userID != -1) m_users.push_back(user);
         }
         m_filteredUsers = m_users;
     }

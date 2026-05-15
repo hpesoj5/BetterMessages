@@ -12,14 +12,13 @@ namespace BetterMessages {
         void updateZOrder(int ZOrder);
         void select(CCObject* = nullptr);
         void setSelectedSprite(bool selected);
+        void onClose(CCObject*);
 
     private:
         TabButton() = default;
         ~TabButton() = default;
 
         bool init(float width, float height, GJUserScore* user);
-
-        void onClose(CCObject*);
 
         CCMenuItemSpriteExtra* m_button;
         NineSlice* m_selectedSprite;

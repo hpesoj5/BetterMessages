@@ -29,7 +29,7 @@ Mobile support will be added in the future.
 - Customisable message fetch intervals (currently 5s (active) /30s (background))
 - Customisable keybinds
 - Ability to message non-friends
-- Removing deleted messages from chat history:w
+- Removing deleted messages from chat history
 - Notification support
 
 
