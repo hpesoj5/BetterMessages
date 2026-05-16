@@ -204,6 +204,9 @@ namespace BetterMessages {
         async::spawn([this, accountID, gjp2] -> arc::Future<> {
             int page {};
             int retryCount {};
+            asp::Duration d;
+            co_await async::waitForMainThread([&d] { d = timeToNextRequest(); });
+            co_await arc::sleep(d);
             while (true) {
                 web::WebRequest req {};
                 req.bodyString(fmt::format(
@@ -298,6 +301,9 @@ namespace BetterMessages {
         userIDs.reserve(m_chats.size());
         for (auto& [userID, _] : m_chats) userIDs.push_back(userID);
         async::spawn([this, accountID, gjp2, userIDs] -> arc::Future<> {
+            asp::Duration d;
+            co_await async::waitForMainThread([&d] { d = timeToNextRequest(); });
+            co_await arc::sleep(d);
             for (auto userID : userIDs) co_await downloadChat(userID, accountID, gjp2);
         }, [this] {
             // log::info("All messages downloaded");
@@ -362,6 +368,9 @@ namespace BetterMessages {
         if (m_isSending || accountID <= 0 || gjp2.empty()) return;
         m_isSending = true;
         async::spawn([this, accountID, gjp2] -> arc::Future<> {
+            asp::Duration d;
+            co_await async::waitForMainThread([&d] { d = timeToNextRequest(); });
+            co_await arc::sleep(d);
             while (true) {
                 int toAccountID { -1 };
                 std::string content;
@@ -371,8 +380,8 @@ namespace BetterMessages {
                         auto [id, c, s] { m_sentMessageQueue.front() };
                         m_sentMessageQueue.pop();
                         toAccountID = id;
-                        content = c;
-                        subject = s;
+                        content = std::move(c);
+                        subject = std::move(s);
                     }
                 });
                 if (toAccountID == -1) break;
