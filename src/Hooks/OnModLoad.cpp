@@ -50,3 +50,7 @@ $on_mod(Loaded) {
         }
     });
 }
+
+$on_game(Exiting) {
+    BetterMessages::ChatHandler::get()->saveToDisk();
+}

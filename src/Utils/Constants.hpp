@@ -1,6 +1,13 @@
 #pragma once
 
+#include <asp/time/Instant.hpp>
+#include <asp/time/Duration.hpp>
+#include <unordered_map>
 namespace Constants {
+    namespace Accounts {
+        inline std::unordered_map<int, int> accountIDs;
+    }
+
     namespace ChatLayer {
         inline constexpr float PADDING { 10.f };
     }
@@ -25,5 +32,7 @@ namespace Constants {
 
     namespace Requests {
         inline const std::string SOCIAL_SECRET { "Wmfd2893gb7" };
+        inline asp::Instant lastRequestTime { asp::Instant::now() };
+        inline constexpr asp::Duration REQUEST_DELAY { asp::Duration::fromMillis(750) };
     }
 }

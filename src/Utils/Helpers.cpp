@@ -1,3 +1,4 @@
+#include "Constants.hpp"
 #include "Helpers.hpp"
 #include <charconv>
 
@@ -14,4 +15,44 @@ namespace BetterMessages {
         std::from_chars(str.data(), str.data() + str.size(), result);
         return result;
     }
+
+    std::string xor_cycle(std::vector<std::uint8_t> const& input, std::string_view key) {
+        std::string result {};
+        auto size { input.size() };
+        auto keySize { key.size() };
+        result.reserve(size);
+        for(auto i { 0uz }; i < size; ++i) {
+            std::uint8_t k = static_cast<uint8_t>(key[i % keySize]);
+            result += static_cast<char>(static_cast<std::uint8_t>(input[i]) ^ k);
+        }
+        return result;
+    }
+
+    std::string xor_cycle(std::string_view input, std::string_view key) {
+        std::string result {};
+        auto size { input.size() };
+        auto keySize { key.size() };
+        result.reserve(size);
+        for(auto i { 0uz }; i < size; ++i) {
+            std::uint8_t k = static_cast<uint8_t>(key[i % keySize]);
+            result += static_cast<char>(static_cast<std::uint8_t>(input[i]) ^ k);
+        }
+        return result;
+    }
+
+    asp::Duration timeToNextRequest() {
+        auto elapsed { Constants::Requests::lastRequestTime.elapsed() };
+        if (elapsed >= Constants::Requests::REQUEST_DELAY) return asp::Duration::zero();
+        return Constants::Requests::REQUEST_DELAY - elapsed;
+    }
+
+    void setLastRequestTime() { Constants::Requests::lastRequestTime = asp::Instant::now(); }
+
+    std::optional<int> accountIDForUserID(int userID) {
+        auto it { Constants::Accounts::accountIDs.find(userID) };
+        if (it == Constants::Accounts::accountIDs.end()) return {};
+        return it->second;
+    }
+
+    void setAccountIDForUserID(int userID, int accountID) { Constants::Accounts::accountIDs[userID] = accountID; }
 }

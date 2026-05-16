@@ -50,14 +50,12 @@ namespace BetterMessages {
 
     void ChatLayer::open() {
         auto scene { CCScene::get() };
-        // log::info("Open instance");
         auto zOrder { scene->getHighestChildZ() + 1 };
         scene->addChild(this, zOrder);
 
         ProfileSelectMenu::get()->updateZOrder(zOrder + 1);
 
         auto ch { ChatMenu::get() };
-        // if (ch->isLoading()) ch->setLoadingSpinner(true);
         ChatHandler::get()->refreshChat(ChatHandler::get()->getActiveUserID());
         ChatMenu::get()->updateZOrder(zOrder + 1);
 
@@ -70,7 +68,6 @@ namespace BetterMessages {
     }
 
     void ChatLayer::close() {
-        // log::info("Close instance");
         ProfileSelectMenu::get()->resetInput();
         ChatMenu::get()->defocus();
         // ChatMenu::get()->setLoadingSpinner(false);

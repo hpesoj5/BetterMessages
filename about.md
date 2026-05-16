@@ -23,7 +23,7 @@ Mobile support will be added in the future.
 ## Future Additions
 - Mobile UI (note that there is currently no button to access the chat menu on mobile)
 - Other UI improvements
-- Customisable message fetch intervals (currently 5s (active) /30s (background))
+- Customisable message fetch intervals (currently 5s (active) / off (background))
 - Customisable keybinds
 - Ability to message non-friends
 - Removing deleted messages from chat history

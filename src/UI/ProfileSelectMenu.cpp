@@ -1,5 +1,6 @@
 #include "Constants.hpp"
 #include "ChatMenu.hpp"
+#include "Helpers.hpp"
 #include "ProfileSelectMenu.hpp"
 #include "ProfileButton.hpp"
 #include <algorithm>
@@ -97,6 +98,7 @@ namespace BetterMessages {
         req.header("Content-Type", "application/x-www-form-urlencoded");
 
         async::spawn(req.post("https://www.boomlings.com/database/getGJUserList20.php"), [this](web::WebResponse res) {
+            setLastRequestTime();
             if (res.ok() && res.string().isOk()) {
                 parseFriendString(res.string().unwrap());
                 displayUsers();
@@ -169,7 +171,10 @@ namespace BetterMessages {
                     break;
                 }
             }
-            if (user->m_userID != -1) m_users.push_back(user);
+            if (user->m_userID != -1) {
+                setAccountIDForUserID(user->m_userID, user->m_accountID);
+                m_users.push_back(user);
+            }
         }
         m_filteredUsers = m_users;
     }

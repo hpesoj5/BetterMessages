@@ -1,6 +1,7 @@
 #include "Constants.hpp"
 #include "ChatHandler.hpp"
 #include "ChatMenu.hpp"
+#include "Helpers.hpp"
 #include "TabButton.hpp"
 #include <ranges>
 
@@ -198,7 +199,7 @@ namespace BetterMessages {
         cl->updateLayout();
         updateLayout();
         cl->setContentHeight(std::max(cl->getContentHeight(), m_chatHistoryLayer->getContentHeight()));
-        log::info("Chat history restored with {} items", history.size());
+        // log::info("Chat history restored with {} items", history.size());
     }
 
     TabButton* ChatMenu::getTabButtonByTag(int tag) {
@@ -211,16 +212,12 @@ namespace BetterMessages {
 
     void ChatMenu::enterPressed(CCTextInputNode* node) {
         std::string str { node->getString() };
+        if (str.empty()) return;
         node->setString("");
         auto ch { ChatHandler::get() };
         auto userID { ch->getActiveUserID() };
-        // async::spawn(
-        //     ch->sendMessage(userID, str),
-        //     [ch, userID] {
-        //         if (userID == ch->getActiveUserID()) {
-        //             ch->refreshChat(userID);
-        //         }
-        //     }
-        // );
+        auto accountID { accountIDForUserID(userID) };
+        // log::info("userID: {}, accountID: {}", userID, accountID.value_or(-1));
+        if (accountID) ch->sendMessage(accountID.value(), str);
     }
 }

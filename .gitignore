@@ -67,3 +67,6 @@ build-*/
 # other files
 notes.md
 resources/personal-assets
+
+# for test/debug hooks
+src/Hooks/test.cpp*
