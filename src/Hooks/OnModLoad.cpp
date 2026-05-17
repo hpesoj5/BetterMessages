@@ -5,7 +5,6 @@
 #include <arc/prelude.hpp>
 
 $on_mod(Loaded) {
-    auto chatLayer { BetterMessages::ChatLayer::get() };
     BetterMessages::ChatHandler::get()->loadMessages();
     BetterMessages::ChatHandler::get()->restoreFromDisk();
 
@@ -16,20 +15,24 @@ $on_mod(Loaded) {
     });
 
     arc::Notify notify;
-    async::spawn([chatLayer, notify] -> arc::Future<> {
+    async::spawn([notify] -> arc::Future<> {
         using Globals::Requests::activeInterval;
         using Globals::Requests::backgroundInterval;
         using Globals::Requests::backgroundPollingEnabled;
         auto lastLoadTime { asp::Instant::now() };
+        arc::Notify* openNotif {};
+        co_await async::waitForMainThread([&openNotif] { openNotif = &(BetterMessages::ChatLayer::get()->m_openNotif); });
         while (true) {
+            bool isOpen { (co_await async::waitForMainThread<bool>([] { return BetterMessages::ChatLayer::get()->isOpen(); })) };
             co_await arc::select(
-                arc::selectee(arc::sleep(asp::Duration::fromMillis(chatLayer->isOpen() ? activeInterval : backgroundInterval))),
-                arc::selectee(chatLayer->m_openNotif.notified())
+                arc::selectee(arc::sleep(asp::Duration::fromMillis(isOpen ? activeInterval : backgroundInterval))),
+                arc::selectee(openNotif->notified())
             );
 
             auto elapsed { lastLoadTime.elapsed() };
 
-            if (chatLayer->isOpen() && elapsed >= asp::Duration::fromMillis(activeInterval) || (backgroundPollingEnabled && elapsed >= asp::Duration::fromMillis(backgroundInterval))) {
+            isOpen = (co_await async::waitForMainThread<bool>([] { return BetterMessages::ChatLayer::get()->isOpen(); })).value_or(false);
+            if (isOpen && elapsed >= asp::Duration::fromMillis(activeInterval) || (backgroundPollingEnabled && elapsed >= asp::Duration::fromMillis(backgroundInterval))) {
                 lastLoadTime = asp::Instant::now();
                 notify.notifyAll();
             }

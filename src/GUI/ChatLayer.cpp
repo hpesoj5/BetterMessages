@@ -61,6 +61,7 @@ namespace BetterMessages {
         ch->updateZOrder(zOrder + 1);
 
         m_isOpen = true;
+        log::info("opened");
         m_openNotif.notifyAll();
     }
 
