@@ -1,3 +1,6 @@
+# 1.0.0-beta.2
+- Removed Ref access in arc worker in `onModLoad.cpp`
+
 # 1.0.0-beta.1
 - Changed all profile and message requests to web requests instead of through RobTop's delegates
 - Added rate limits (not configurable yet) to throttle outgoing requests
