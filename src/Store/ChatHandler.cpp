@@ -19,17 +19,17 @@ namespace BetterMessages {
 
     void ChatHandler::saveToDisk() {
         auto m { Mod::get() };
-        m->setSavedValue("chatData", m_chats);
-        m->setSavedValue("highestReceivedMessageID", m_highestReceivedMessageID);
-        m->setSavedValue("highestSentMessageID", m_highestSentMessageID);
+        m->setSavedValue("chatData"_spr, m_chats);
+        m->setSavedValue("highestReceivedMessageID"_spr, m_highestReceivedMessageID);
+        m->setSavedValue("highestSentMessageID"_spr, m_highestSentMessageID);
         // log::info("Successfully saved chat data to disk");
     }
 
     void ChatHandler::restoreFromDisk() {
         auto m { Mod::get() };
-        m_chats = m->getSavedValue<std::unordered_map<int, Chat>>("chatData");
-        m_highestReceivedMessageID = m->getSavedValue<int>("highestReceivedMessageID");
-        m_highestSentMessageID = m->getSavedValue<int>("highestSentMessageID");
+        m_chats = m->getSavedValue<std::unordered_map<int, Chat>>("chatData"_spr);
+        m_highestReceivedMessageID = m->getSavedValue<int>("highestReceivedMessageID"_spr);
+        m_highestSentMessageID = m->getSavedValue<int>("highestSentMessageID"_spr);
         // log::info("Successfully restored chat data from disk");
     }
 
@@ -288,7 +288,7 @@ namespace BetterMessages {
             sortChats();
             // log::info("Chats sorted");
             downloadChats();
-        });
+        }).setName("LoadMessages"_spr);
     }
 
     void ChatHandler::sortChats() {
@@ -312,7 +312,7 @@ namespace BetterMessages {
             m_isLoading = false;
             if (ChatLayer::get()->isOpen()) refreshChat(getActiveUserID());
             ChatMenu::get()->setLoadingSpinner(false);
-        });
+        }).setName("DownloadChats"_spr);
     }
 
     arc::Future<> ChatHandler::downloadChat(int userID, int accountID, std::string const& gjp2) {
@@ -417,6 +417,6 @@ namespace BetterMessages {
         }, [this] {
             m_isSending = false;
             loadMessages();
-        });
+        }).setName("SendMessage"_spr);
     }
 }

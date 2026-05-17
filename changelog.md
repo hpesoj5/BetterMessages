@@ -1,3 +1,7 @@
+# 1.0.0-beta.4
+- Add `_spr` literal to save data keys
+- Add names to spawned async coroutines
+
 # 1.0.0-beta.3
 - Fix github release oops
 

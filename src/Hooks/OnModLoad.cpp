@@ -37,7 +37,7 @@ $on_mod(Loaded) {
                 notify.notifyAll();
             }
         }
-    });
+    }).setName("PollCycle-1"_spr);
 
     async::spawn([notify] -> arc::Future<> {
         while (true) {
@@ -50,7 +50,7 @@ $on_mod(Loaded) {
             });
             co_await notify.notified();
         }
-    });
+    }).setName("PollCycle-2"_spr);
 
     async::spawn([] -> arc::Future<> {
         while (true) {
@@ -62,7 +62,7 @@ $on_mod(Loaded) {
             });
             co_await arc::sleep(asp::Duration::fromMillis(Globals::Chat::refreshInterval));
         }
-    });
+    }).setName("RefreshChatCycle"_spr);
 }
 
 $on_game(Exiting) {

@@ -114,7 +114,7 @@ namespace BetterMessages {
                 });
             }
             else log::debug("Get friend list request failed: {}", res.code());
-        }, [this] { m_isLoading = false; });
+        }, [this] { m_isLoading = false; }).setName("RetrieveFriends"_spr);
     }
 
     void ProfileSelectMenu::parseFriendString(std::string const& data) {
