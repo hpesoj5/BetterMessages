@@ -44,5 +44,7 @@ namespace BetterMessages {
         TextInput* m_searchInput;
 
         UserListDelegate* m_prevULD;
+
+        bool m_isLoading {};
     };
 }

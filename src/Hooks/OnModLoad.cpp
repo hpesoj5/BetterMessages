@@ -1,10 +1,8 @@
 #include "ChatLayer.hpp"
 #include "ChatHandler.hpp"
-#include "Constants.hpp"
+#include "Globals.hpp"
 #include <Geode/Geode.hpp>
 #include <arc/prelude.hpp>
-
-using Constants::ChatHandler::PollRate;
 
 $on_mod(Loaded) {
     auto chatLayer { BetterMessages::ChatLayer::get() };
@@ -19,20 +17,19 @@ $on_mod(Loaded) {
 
     arc::Notify notify;
     async::spawn([chatLayer, notify] -> arc::Future<> {
+        using Globals::Requests::activeInterval;
+        using Globals::Requests::backgroundInterval;
+        using Globals::Requests::backgroundPollingEnabled;
         auto lastLoadTime { asp::Instant::now() };
         while (true) {
             co_await arc::select(
-                arc::selectee(
-                    arc::sleep(asp::time::Duration::fromSecs(
-                        static_cast<int>(PollRate::Active)
-                    ))
-                ),
+                arc::selectee(arc::sleep(asp::Duration::fromMillis(chatLayer->isOpen() ? activeInterval : backgroundInterval))),
                 arc::selectee(chatLayer->m_openNotif.notified())
             );
 
             auto elapsed { lastLoadTime.elapsed() };
 
-            if (chatLayer->isOpen() && elapsed >= asp::Duration::fromSecs(static_cast<int>(PollRate::Active))) {
+            if (chatLayer->isOpen() && elapsed >= asp::Duration::fromMillis(activeInterval) || (backgroundPollingEnabled && elapsed >= asp::Duration::fromMillis(backgroundInterval))) {
                 lastLoadTime = asp::Instant::now();
                 notify.notifyAll();
             }
@@ -40,13 +37,21 @@ $on_mod(Loaded) {
     });
 
     async::spawn([notify] -> arc::Future<> {
-        auto ch { BetterMessages::ChatHandler::get() };
         while (true) {
-            co_await async::waitForMainThread([ch] { ch->loadMessages(); });
-            // co_await async::waitForMainThread([ch] {
-                // ch->refreshChat(ch->getActiveUserID());
-            // });
+            co_await async::waitForMainThread([] { BetterMessages::ChatHandler::get()->loadMessages(); });
             co_await notify.notified();
+        }
+    });
+
+    async::spawn([] -> arc::Future<> {
+        while (true) {
+            co_await async::waitForMainThread([] {
+                if (BetterMessages::ChatLayer::get()->isOpen()) {
+                    auto ch { BetterMessages::ChatHandler::get() };
+                    ch->refreshChat(ch->getActiveUserID());
+                }
+            });
+            co_await arc::sleep(asp::Duration::fromMillis(Globals::Chat::refreshInterval));
         }
     });
 }

@@ -57,7 +57,8 @@ namespace BetterMessages {
 
         auto ch { ChatMenu::get() };
         ChatHandler::get()->refreshChat(ChatHandler::get()->getActiveUserID());
-        ChatMenu::get()->updateZOrder(zOrder + 1);
+        if (ChatHandler::get()->isLoading()) ch->setLoadingSpinner(true);
+        ch->updateZOrder(zOrder + 1);
 
         m_isOpen = true;
         m_openNotif.notifyAll();
@@ -70,7 +71,7 @@ namespace BetterMessages {
     void ChatLayer::close() {
         ProfileSelectMenu::get()->resetInput();
         ChatMenu::get()->defocus();
-        // ChatMenu::get()->setLoadingSpinner(false);
+        ChatMenu::get()->setLoadingSpinner(false);
         this->removeFromParent();
         ChatHandler::get()->saveToDisk();
 

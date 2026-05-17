@@ -1,10 +1,11 @@
-#include "Constants.hpp"
+#include "Globals.hpp"
 #include "ChatMenu.hpp"
 #include "Helpers.hpp"
 #include "ProfileSelectMenu.hpp"
 #include "ProfileButton.hpp"
-#include <algorithm>
 #include <Geode/utils/string.hpp>
+#include <arc/time/Sleep.hpp>
+#include <algorithm>
 
 namespace BetterMessages {
     Ref<ProfileSelectMenu> ProfileSelectMenu::get() {
@@ -28,9 +29,9 @@ namespace BetterMessages {
         setID("ProfileSelectMenu"_spr);
 
         auto winSize { CCDirector::get()->getWinSize() };
-        setContentSize({ winSize.width - 2 * Constants::ChatLayer::PADDING, winSize.height / 2 - Constants::ChatLayer::PADDING });
+        setContentSize({ winSize.width - 2 * Globals::ChatLayer::PADDING, winSize.height / 2 - Globals::ChatLayer::PADDING });
         setAnchorPoint({ 0.0f, 0.0f });
-        setPosition(Constants::ChatLayer::PADDING, winSize.height / 2.f);
+        setPosition(Globals::ChatLayer::PADDING, winSize.height / 2.f);
 
         // search bar
         auto [contentWidth, contentHeight] { getContentSize() };
@@ -83,28 +84,35 @@ namespace BetterMessages {
     }
 
     void ProfileSelectMenu::retrieveFriends() {
+        if (m_isLoading) return;
+        m_isLoading = true;
         auto accountID { GJAccountManager::get()->m_accountID };
         std::string gjp2 { GJAccountManager::get()->m_GJP2 };
         if (accountID <= 0 || gjp2.empty()) return;
-        web::WebRequest req {};
-        req.bodyString(fmt::format(
-        "accountID={}&gjp2={}&secret={}&type={}",
-            accountID,
-            gjp2,
-            Constants::Requests::SOCIAL_SECRET,
-            0
-        ));
-        req.userAgent("");
-        req.header("Content-Type", "application/x-www-form-urlencoded");
+        async::spawn([this, accountID, gjp2] -> arc::Future<> {
+            web::WebRequest req {};
+            req.bodyString(fmt::format(
+            "accountID={}&gjp2={}&secret={}&type={}",
+                accountID,
+                gjp2,
+                Globals::Requests::SOCIAL_SECRET,
+                0
+            ));
+            req.userAgent("");
+            req.header("Content-Type", "application/x-www-form-urlencoded");
 
-        async::spawn(req.post("https://www.boomlings.com/database/getGJUserList20.php"), [this](web::WebResponse res) {
-            setLastRequestTime();
+            co_await arc::sleep((co_await async::waitForMainThread<asp::Duration>([] { return timeToNextRequest(); })).value_or({}));
+            auto res { co_await req.post("https://www.boomlings.com/database/getGJUserList20.php") };
+            co_await async::waitForMainThread([] { setLastRequestTime(); });
+
             if (res.ok() && res.string().isOk()) {
-                parseFriendString(res.string().unwrap());
-                displayUsers();
+                co_await async::waitForMainThread([this, res] {
+                    parseFriendString(res.string().unwrap());
+                    displayUsers();
+                });
             }
             else log::debug("Get friend list request failed: {}", res.code());
-        });
+        }, [this] { m_isLoading = false; });
     }
 
     void ProfileSelectMenu::parseFriendString(std::string const& data) {

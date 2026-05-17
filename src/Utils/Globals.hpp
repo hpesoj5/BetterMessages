@@ -3,7 +3,8 @@
 #include <asp/time/Instant.hpp>
 #include <asp/time/Duration.hpp>
 #include <unordered_map>
-namespace Constants {
+
+namespace Globals {
     namespace Accounts {
         inline std::unordered_map<int, int> accountIDs;
     }
@@ -20,19 +21,15 @@ namespace Constants {
 
     namespace Chat {
         inline constexpr float NUM_ROWS { 10.f };  // number of lines of messages in the menu, including the chat input
-    }
-
-    namespace ChatHandler {
-        // probably gonna change
-        enum class PollRate {  // in seconds
-            Active = 5,
-            Background = 30,
-        };
+        inline int refreshInterval { 1000 };  // in milliseconds
     }
 
     namespace Requests {
         inline const std::string SOCIAL_SECRET { "Wmfd2893gb7" };
         inline asp::Instant lastRequestTime { asp::Instant::now() };
         inline constexpr asp::Duration REQUEST_DELAY { asp::Duration::fromMillis(750) };
+        inline int activeInterval { 5000 };
+        inline int backgroundInterval { 30000 };
+        inline bool backgroundPollingEnabled {};
     }
 }

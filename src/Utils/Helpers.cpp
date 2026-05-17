@@ -1,4 +1,4 @@
-#include "Constants.hpp"
+#include "Globals.hpp"
 #include "Helpers.hpp"
 #include <charconv>
 
@@ -41,18 +41,18 @@ namespace BetterMessages {
     }
 
     asp::Duration timeToNextRequest() {
-        auto elapsed { Constants::Requests::lastRequestTime.elapsed() };
-        if (elapsed >= Constants::Requests::REQUEST_DELAY) return asp::Duration::zero();
-        return Constants::Requests::REQUEST_DELAY - elapsed;
+        auto elapsed { Globals::Requests::lastRequestTime.elapsed() };
+        if (elapsed >= Globals::Requests::REQUEST_DELAY) return asp::Duration::zero();
+        return Globals::Requests::REQUEST_DELAY - elapsed;
     }
 
-    void setLastRequestTime() { Constants::Requests::lastRequestTime = asp::Instant::now(); }
+    void setLastRequestTime() { Globals::Requests::lastRequestTime = asp::Instant::now(); }
 
     std::optional<int> accountIDForUserID(int userID) {
-        auto it { Constants::Accounts::accountIDs.find(userID) };
-        if (it == Constants::Accounts::accountIDs.end()) return {};
+        auto it { Globals::Accounts::accountIDs.find(userID) };
+        if (it == Globals::Accounts::accountIDs.end()) return {};
         return it->second;
     }
 
-    void setAccountIDForUserID(int userID, int accountID) { Constants::Accounts::accountIDs[userID] = accountID; }
+    void setAccountIDForUserID(int userID, int accountID) { Globals::Accounts::accountIDs[userID] = accountID; }
 }

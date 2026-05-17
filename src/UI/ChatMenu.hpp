@@ -10,9 +10,9 @@ namespace BetterMessages {
     public:
         static Ref<ChatMenu> get();
 
-        void setLoading(bool loading);
         void setLoadingSpinner(bool visible);
         void enableScrollWheel(bool enabled = true);
+        void scrollToBottom();
 
         void updateZOrder(int zOrder);
         void goToUser(GJUserScore* user);

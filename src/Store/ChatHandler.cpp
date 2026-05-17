@@ -1,4 +1,4 @@
-#include "Constants.hpp"
+#include "Globals.hpp"
 #include "ChatHandler.hpp"
 #include "ChatMenu.hpp"
 #include "Helpers.hpp"
@@ -31,6 +31,8 @@ namespace BetterMessages {
         m_highestSentMessageID = m->getSavedValue<int>("highestSentMessageID");
         log::info("Successfully restored chat data from disk");
     }
+
+    bool ChatHandler::isLoading() const { return m_isLoading || m_isSending; }
 
     int ChatHandler::getActiveUserID() const { return m_activeUserID.empty() ? -1 : m_activeUserID.back(); }
 
@@ -85,6 +87,7 @@ namespace BetterMessages {
         auto button { ChatMenu::get()->getTabButtonByTag(userID) };
         if (button) button->setSelectedSprite(true);
         restoreChat(userID);
+        ChatMenu::get()->scrollToBottom();
     }
 
     void ChatHandler::refreshChat(int userID) {
@@ -196,31 +199,31 @@ namespace BetterMessages {
 
     void ChatHandler::loadMessages() {
         if (m_isLoading) return;
-        m_isLoading = true;
-        m_stopLoading = false;
         auto accountID { GJAccountManager::get()->m_accountID };
         std::string gjp2 { GJAccountManager::get()->m_GJP2 };
         if (accountID <= 0 || gjp2.empty()) return;
+        m_isLoading = true;
+        m_stopLoading = false;
+        ChatMenu::get()->setLoadingSpinner(true);
         async::spawn([this, accountID, gjp2] -> arc::Future<> {
             int page {};
             int retryCount {};
-            asp::Duration d;
-            co_await async::waitForMainThread([&d] { d = timeToNextRequest(); });
-            co_await arc::sleep(d);
             while (true) {
                 web::WebRequest req {};
                 req.bodyString(fmt::format(
                     "accountID={}&gjp2={}&secret={}&page={}&getSent=0",
                     accountID,
                     gjp2,
-                    Constants::Requests::SOCIAL_SECRET,
+                    Globals::Requests::SOCIAL_SECRET,
                     page
                 ));
                 req.userAgent("");
                 req.header("Content-Type", "application/x-www-form-urlencoded");
 
+                co_await arc::sleep((co_await async::waitForMainThread<asp::Duration>([] { return timeToNextRequest(); })).value_or({}));
                 auto res { co_await req.post("https://www.boomlings.com/database/getGJMessages20.php") };
                 co_await async::waitForMainThread([] { setLastRequestTime(); });
+
                 if (res.ok() && res.string().isOk()) {
                     std::string str { res.string().unwrap() };
                     // log::info("page: {}, response: {}", page, str);
@@ -233,9 +236,6 @@ namespace BetterMessages {
                     log::info("Get received messages page {} request failed: {}", page, res.code());
                     if (++retryCount >= 5) break;
                 }
-                asp::Duration delay;
-                co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-                co_await arc::sleep(delay);
             }
 
             m_highestReceivedMessageID = std::max(m_highestReceivedMessageID, m_temporaryReceivedID);
@@ -250,14 +250,16 @@ namespace BetterMessages {
                     "accountID={}&gjp2={}&secret={}&page={}&total=50&getSent=1",
                     accountID,
                     gjp2,
-                    Constants::Requests::SOCIAL_SECRET,
+                    Globals::Requests::SOCIAL_SECRET,
                     page
                 ));
                 req.userAgent("");
                 req.header("Content-Type", "application/x-www-form-urlencoded");
 
+                co_await arc::sleep((co_await async::waitForMainThread<asp::Duration>([] { return timeToNextRequest(); })).value_or({}));
                 auto res { co_await req.post("https://www.boomlings.com/database/getGJMessages20.php") };
                 co_await async::waitForMainThread([] { setLastRequestTime(); });
+
                 if (res.ok() && res.string().isOk()) {
                     std::string str { res.string().unwrap() };
                     // log::info("page: {}, response: {}", page, str);
@@ -270,20 +272,17 @@ namespace BetterMessages {
                     log::info("Get sent messages page {} request failed: {}", page, res.code());
                     if (++retryCount >= 5) break;
                 }
-                asp::Duration delay;
-                co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-                co_await arc::sleep(delay);
             }
 
             m_highestSentMessageID = std::max(m_highestSentMessageID, m_temporarySentID);
             m_temporarySentID = 0;
 
             // log::info("Messages loaded successfully");
-            co_await async::waitForMainThread([this] {
-                sortChats();
-                // log::info("Messages sorted");
-            });
-        }, [this] { downloadChats(); });
+        }, [this] {
+            sortChats();
+            // log::info("Chats sorted");
+            downloadChats();
+        });
     }
 
     void ChatHandler::sortChats() {
@@ -301,20 +300,17 @@ namespace BetterMessages {
         userIDs.reserve(m_chats.size());
         for (auto& [userID, _] : m_chats) userIDs.push_back(userID);
         async::spawn([this, accountID, gjp2, userIDs] -> arc::Future<> {
-            asp::Duration d;
-            co_await async::waitForMainThread([&d] { d = timeToNextRequest(); });
-            co_await arc::sleep(d);
             for (auto userID : userIDs) co_await downloadChat(userID, accountID, gjp2);
         }, [this] {
             // log::info("All messages downloaded");
             m_isLoading = false;
             refreshChat(getActiveUserID());
+            ChatMenu::get()->setLoadingSpinner(false);
         });
     }
 
     arc::Future<> ChatHandler::downloadChat(int userID, int accountID, std::string const& gjp2) {
-        size_t size {};
-        co_await async::waitForMainThread([this, userID, &size] { size = m_chats[userID].history.size(); });
+        auto size { (co_await async::waitForMainThread<size_t>([this, userID] { return m_chats[userID].history.size(); })).value_or(0) };
         for (int i { 0uz }; i < size; ++i) {
             int messageID { -1 };
             bool sent {};
@@ -332,14 +328,16 @@ namespace BetterMessages {
                     accountID,
                     gjp2,
                     messageID,
-                    Constants::Requests::SOCIAL_SECRET,
+                    Globals::Requests::SOCIAL_SECRET,
                     static_cast<int>(sent)
                 ));
                 req.userAgent("");
                 req.header("Content-Type", "application/x-www-form-urlencoded");
 
+                co_await arc::sleep((co_await async::waitForMainThread<asp::Duration>([] { return timeToNextRequest(); })).value_or({}));
                 auto res { co_await req.post("https://www.boomlings.com/database/downloadGJMessage20.php") };
                 co_await async::waitForMainThread([] { setLastRequestTime(); });
+
                 if (res.ok() && res.string().isOk()) {
                     std::string str { res.string().unwrap() };
                     // log::info("Download request (userID: {}, messageID: {}, sent: {}) response: {}", userID, messageID, sent, str);
@@ -354,9 +352,6 @@ namespace BetterMessages {
                 else {
                     log::info("Download message {} request failed: {}", messageID, res.code());
                 }
-                asp::Duration delay;
-                co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-                co_await arc::sleep(delay);
             }
         }
     }
@@ -367,10 +362,8 @@ namespace BetterMessages {
         std::string gjp2 { GJAccountManager::get()->m_GJP2 };
         if (m_isSending || accountID <= 0 || gjp2.empty()) return;
         m_isSending = true;
+        ChatMenu::get()->setLoadingSpinner(true);
         async::spawn([this, accountID, gjp2] -> arc::Future<> {
-            asp::Duration d;
-            co_await async::waitForMainThread([&d] { d = timeToNextRequest(); });
-            co_await arc::sleep(d);
             while (true) {
                 int toAccountID { -1 };
                 std::string content;
@@ -394,13 +387,15 @@ namespace BetterMessages {
                     toAccountID,
                     base64::encode(subject),
                     base64::encode(xor_cycle(content, "14251")),
-                    Constants::Requests::SOCIAL_SECRET
+                    Globals::Requests::SOCIAL_SECRET
                 ));
                 req.userAgent("");
                 req.header("Content-Type", "application/x-www-form-urlencoded");
 
+                co_await arc::sleep((co_await async::waitForMainThread<asp::Duration>([] { return timeToNextRequest(); })).value_or({}));
                 auto res { co_await req.post("https://www.boomlings.com/database/uploadGJMessage20.php") };
                 co_await async::waitForMainThread([] { setLastRequestTime(); });
+
                 if (res.ok() && res.string().isOk()) {
                     std::string str { res.string().unwrap() };
                     if (str == "-1") log::info("a problem occurred while sending the message to account {} with content {} (code {})", toAccountID, content, res.code());
@@ -408,9 +403,6 @@ namespace BetterMessages {
                 else {
                     log::info("message sent to account {} with content {} failed: {}", toAccountID, content, res.code());
                 }
-                asp::Duration delay;
-                co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-                co_await arc::sleep(delay);
             }
         }, [this] {
             m_isSending = false;

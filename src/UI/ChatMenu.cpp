@@ -1,4 +1,4 @@
-#include "Constants.hpp"
+#include "Globals.hpp"
 #include "ChatHandler.hpp"
 #include "ChatMenu.hpp"
 #include "Helpers.hpp"
@@ -33,8 +33,8 @@ namespace BetterMessages {
 
         auto [contentWidth, contentHeight] { getContentSize() };
         m_tabButtonMenu = CCMenu::create();
-        m_tabButtonMenu->setLayout(RowLayout::create()->setGap(Constants::TabMenu::GAP)->setGrowCrossAxis(true)->setAxisAlignment(AxisAlignment::Start));
-        m_tabButtonMenu->setContentSize({ contentWidth, contentHeight * Constants::TabMenu::HEIGHT });
+        m_tabButtonMenu->setLayout(RowLayout::create()->setGap(Globals::TabMenu::GAP)->setGrowCrossAxis(true)->setAxisAlignment(AxisAlignment::Start));
+        m_tabButtonMenu->setContentSize({ contentWidth, contentHeight * Globals::TabMenu::HEIGHT });
         m_tabButtonMenu->setID("TabButtonMenu"_spr);
         m_tabButtonMenu->setAnchorPoint({ 0.f, 1.f });
         m_tabButtonMenu->ignoreAnchorPointForPosition(false);
@@ -43,7 +43,7 @@ namespace BetterMessages {
 
         m_tabButtonMenuBG = NineSlice::create("square02b_small.png");
         m_tabButtonMenuBG->setOpacity(50);
-        m_tabButtonMenuBG->setContentSize({ winSize.width * 1.1f, contentHeight * Constants::TabMenu::HEIGHT });  // to not show rounded corners
+        m_tabButtonMenuBG->setContentSize({ winSize.width * 1.1f, contentHeight * Globals::TabMenu::HEIGHT });  // to not show rounded corners
         m_tabButtonMenuBG->setAnchorPoint({ 0.5f, 1.f });
         m_tabButtonMenuBG->setPosition(contentWidth / 2.f, contentHeight);
 
@@ -73,7 +73,7 @@ namespace BetterMessages {
 
         m_chatHistoryLayer->m_contentLayer->setLayout(ColumnLayout::create()
             ->setGap(5.f)
-            ->setPadding({ Constants::ChatLayer::PADDING, Constants::ChatLayer::PADDING/ 2.f, Constants::ChatLayer::PADDING, Constants::ChatLayer::PADDING / 2.f })
+            ->setPadding({ Globals::ChatLayer::PADDING, Globals::ChatLayer::PADDING/ 2.f, Globals::ChatLayer::PADDING, Globals::ChatLayer::PADDING / 2.f })
             ->setAutoScale(false)
             ->setAxisAlignment(AxisAlignment::Start)
             ->setCrossAxisAlignment(AxisAlignment::Start)
@@ -101,19 +101,19 @@ namespace BetterMessages {
     }
 
     void ChatMenu::setLoadingSpinner(bool visible) {
-        if (m_chatLoadingSpinner) {
-            m_chatLoadingSpinner->removeFromParent();
-            m_chatLoadingSpinner = nullptr;
-        }
         if (visible) {
+            if (m_chatLoadingSpinner) return;
             auto contentWidth { getContentWidth() };
             m_chatLoadingSpinner = LoadingSpinner::create(contentWidth * 0.03f);
             m_chatLoadingSpinner->setAnchorPoint({ 1.f, 0.f });
-            m_chatLoadingSpinner->setPosition(contentWidth - Constants::ChatLayer::PADDING, Constants::ChatLayer::PADDING);
+            m_chatLoadingSpinner->setPosition(contentWidth - Globals::ChatLayer::PADDING, Globals::ChatLayer::PADDING);
             addChild(m_chatLoadingSpinner, getZOrder() + 2);
             // log::info("Loading spinner added");
         }
         else {
+            if (!m_chatLoadingSpinner) return;
+            m_chatLoadingSpinner->removeFromParent();
+            m_chatLoadingSpinner = nullptr;
             // log::info("Loading spinner removed");
         }
 
@@ -124,6 +124,8 @@ namespace BetterMessages {
         m_chatHistoryLayer->enableScrollWheel(enabled);
         log::debug("ChatHistoryLayer scrollWheel {}", enabled ? "enabled" : "disabled");
     }
+
+    void ChatMenu::scrollToBottom() { m_chatHistoryLayer->m_contentLayer->setPosition({ 0.f, 0.f }); }
 
     void ChatMenu::updateZOrder(int zOrder) {
         setZOrder(zOrder);
@@ -152,7 +154,7 @@ namespace BetterMessages {
         auto tabButton { static_cast<TabButton*>(m_tabButtonMenu->getChildByTag(user->m_userID)) };
         if (!tabButton) {
             auto [contentWidth, contentHeight] { getContentSize() };
-            tabButton = TabButton::create((contentWidth / Constants::TabMenu::ROW_LENGTH) - Constants::TabMenu::GAP, contentHeight * Constants::TabMenu::HEIGHT, user);
+            tabButton = TabButton::create((contentWidth / Globals::TabMenu::ROW_LENGTH) - Globals::TabMenu::GAP, contentHeight * Globals::TabMenu::HEIGHT, user);
             m_tabButtonMenu->addChild(tabButton);
             tabButton->updateZOrder(m_tabButtonMenu->getZOrder() + 1);
 
@@ -193,7 +195,7 @@ namespace BetterMessages {
             label->setTag(message->m_userID);
             label->setID(numToString(message->m_messageID));
             label->setScale(0.5f);
-            label->setWidth(m_chatHistoryLayer->getContentWidth() - 2 * Constants::ChatLayer::PADDING);
+            label->setWidth(m_chatHistoryLayer->getContentWidth() - 2 * Globals::ChatLayer::PADDING);
             label->setLineBreakWithoutSpace(true);
         }
         cl->updateLayout();

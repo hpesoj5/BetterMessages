@@ -31,6 +31,7 @@ namespace BetterMessages {
     public:
         static ChatHandler* get();
 
+        bool isLoading() const;
         void switchChat(int userID);
         void refreshChat(int userID);
         void sendMessage(int accountID, std::string const& content, std::string const& subject = "Sent with BetterMessages");

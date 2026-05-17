@@ -58,7 +58,8 @@ namespace BetterMessages {
 
         if (user->m_messageState == 2) {
             m_button->setEnabled(false);
-            m_button->setOpacity(127);
+            m_button->setOpacity(63);
+            m_icon->setOpacity(63);
         }
 
         updateLayout();
