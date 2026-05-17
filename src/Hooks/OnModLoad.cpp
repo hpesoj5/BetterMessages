@@ -39,6 +39,12 @@ $on_mod(Loaded) {
     async::spawn([notify] -> arc::Future<> {
         while (true) {
             co_await async::waitForMainThread([] { BetterMessages::ChatHandler::get()->loadMessages(); });
+            co_await async::waitForMainThread([] {
+                if (BetterMessages::ChatLayer::get()->isOpen()) {
+                    auto ch { BetterMessages::ChatHandler::get() };
+                    ch->refreshChat(ch->getActiveUserID());
+                }
+            });
             co_await notify.notified();
         }
     });
