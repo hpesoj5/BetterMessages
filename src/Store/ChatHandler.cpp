@@ -1,5 +1,6 @@
 #include "Globals.hpp"
 #include "ChatHandler.hpp"
+#include "ChatLayer.hpp"
 #include "ChatMenu.hpp"
 #include "Helpers.hpp"
 #include "Serialisation.hpp"
@@ -202,6 +203,7 @@ namespace BetterMessages {
         auto accountID { GJAccountManager::get()->m_accountID };
         std::string gjp2 { GJAccountManager::get()->m_GJP2 };
         if (accountID <= 0 || gjp2.empty()) return;
+        log::info("loading messages...");
         m_isLoading = true;
         m_stopLoading = false;
         ChatMenu::get()->setLoadingSpinner(true);
@@ -304,7 +306,7 @@ namespace BetterMessages {
         }, [this] {
             // log::info("All messages downloaded");
             m_isLoading = false;
-            refreshChat(getActiveUserID());
+            if (ChatLayer::get()->isOpen()) refreshChat(getActiveUserID());
             ChatMenu::get()->setLoadingSpinner(false);
         });
     }

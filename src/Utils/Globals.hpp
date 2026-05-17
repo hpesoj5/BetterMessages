@@ -30,6 +30,6 @@ namespace Globals {
         inline constexpr asp::Duration REQUEST_DELAY { asp::Duration::fromMillis(750) };
         inline int activeInterval { 5000 };
         inline int backgroundInterval { 30000 };
-        inline bool backgroundPollingEnabled {};
+        inline bool backgroundPollingEnabled { true };
     }
 }
