@@ -1,3 +1,6 @@
+# 1.0.0-beta.3
+- Fix github release oops
+
 # 1.0.0-beta.2
 - Removed Ref access in arc worker in `onModLoad.cpp`
 
