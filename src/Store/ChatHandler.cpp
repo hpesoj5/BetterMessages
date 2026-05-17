@@ -22,7 +22,7 @@ namespace BetterMessages {
         m->setSavedValue("chatData", m_chats);
         m->setSavedValue("highestReceivedMessageID", m_highestReceivedMessageID);
         m->setSavedValue("highestSentMessageID", m_highestSentMessageID);
-        log::info("Successfully saved chat data to disk");
+        // log::info("Successfully saved chat data to disk");
     }
 
     void ChatHandler::restoreFromDisk() {
@@ -30,7 +30,7 @@ namespace BetterMessages {
         m_chats = m->getSavedValue<std::unordered_map<int, Chat>>("chatData");
         m_highestReceivedMessageID = m->getSavedValue<int>("highestReceivedMessageID");
         m_highestSentMessageID = m->getSavedValue<int>("highestSentMessageID");
-        log::info("Successfully restored chat data from disk");
+        // log::info("Successfully restored chat data from disk");
     }
 
     bool ChatHandler::isLoading() const { return m_isLoading || m_isSending; }
@@ -203,7 +203,7 @@ namespace BetterMessages {
         auto accountID { GJAccountManager::get()->m_accountID };
         std::string gjp2 { GJAccountManager::get()->m_GJP2 };
         if (accountID <= 0 || gjp2.empty()) return;
-        log::info("loading messages...");
+        // log::info("loading messages...");
         m_isLoading = true;
         m_stopLoading = false;
         ChatMenu::get()->setLoadingSpinner(true);
