@@ -67,10 +67,9 @@ namespace BetterMessages {
         arc::Mutex<int> m_mtx;
 
         std::unordered_map<int, Chat> m_chats;
-        Ref<GJUserMessage> m_downloadedMessage;
-
         std::queue<SentMessage> m_sentMessageQueue;
         std::vector<int> m_activeUserID;
+
         int m_highestSentMessageID {};
         int m_highestReceivedMessageID {};
         int m_temporarySentID {};

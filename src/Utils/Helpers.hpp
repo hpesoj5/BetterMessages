@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
 namespace BetterMessages {
     float getScaleFromLength(size_t n);
     int stoi(std::string_view str);

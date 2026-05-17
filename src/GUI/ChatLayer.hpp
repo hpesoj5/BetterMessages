@@ -32,7 +32,6 @@ namespace BetterMessages {
         static ChatLayer* create();
         bool init() override;
 
-        int m_zLayer;
         bool m_isOpen;
     };
 }
