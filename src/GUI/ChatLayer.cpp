@@ -70,6 +70,7 @@ namespace BetterMessages {
 
     void ChatLayer::close() {
         ProfileSelectMenu::get()->resetInput();
+        ProfileSelectMenu::get()->retrieveFriends();
         ChatMenu::get()->defocus();
         ChatMenu::get()->setLoadingSpinner(false);
         this->removeFromParent();
