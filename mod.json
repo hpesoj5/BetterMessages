@@ -8,7 +8,7 @@
 	},
 	"id": "hpesoj5.bettermessages",
 	"name": "BetterMessages",
-	"version": "v1.0.0-beta.4",
+	"version": "v1.0.0",
 	"developer": "hpesoj5",
 	"description": "Improves the message system in Geometry Dash!",
 	"tags": ["universal", "enhancement", "interface"],

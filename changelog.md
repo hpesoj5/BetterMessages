@@ -1,3 +1,6 @@
+# 1.0.0
+- removed unused data member variables
+
 # 1.0.0-beta.4
 - Add `_spr` literal to save data keys
 - Add names to spawned async coroutines
