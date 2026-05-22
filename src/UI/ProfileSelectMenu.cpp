@@ -101,11 +101,7 @@ namespace BetterMessages {
             req.userAgent("");
             req.header("Content-Type", "application/x-www-form-urlencoded");
 
-            asp::Duration delay;
-            co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-            co_await arc::sleep(delay);
-            auto res { co_await req.post("https://www.boomlings.com/database/getGJUserList20.php") };
-            co_await async::waitForMainThread([] { setLastRequestTime(); });
+            auto res { co_await sendRequest(req, "https://www.boomlings.com/database/getGJUserList20.php") };
 
             if (res.ok() && res.string().isOk()) {
                 co_await async::waitForMainThread([this, res] {

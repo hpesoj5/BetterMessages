@@ -1,6 +1,7 @@
 #include "Globals.hpp"
 #include "Helpers.hpp"
 #include <charconv>
+#include <arc/time/Sleep.hpp>
 
 namespace BetterMessages {
     float getScaleFromLength(size_t n) {
@@ -40,13 +41,24 @@ namespace BetterMessages {
         return result;
     }
 
-    asp::Duration timeToNextRequest() {
-        auto elapsed { Globals::Requests::lastRequestTime.elapsed() };
-        if (elapsed >= Globals::Requests::REQUEST_DELAY) return asp::Duration::zero();
-        return Globals::Requests::REQUEST_DELAY - elapsed;
+    arc::Future<web::WebResponse> sendRequest(web::WebRequest& req, std::string const& endpoint) {
+        bool shouldLoop { true };
+        while (shouldLoop) {
+            asp::Instant until;
+            {
+                auto nextRequestTime { co_await Globals::Requests::requestMtx.lock() };
+                until = *nextRequestTime;
+                auto now { asp::Instant::now() };
+                if (until <= now) {
+                    shouldLoop = false;
+                    *nextRequestTime = now + Globals::Requests::REQUEST_DELAY;
+                }
+            }
+            if (shouldLoop) co_await arc::sleepUntil(until);
+        }
+        log::info("sending request with to {}", endpoint);
+        co_return co_await req.post(endpoint);
     }
-
-    void setLastRequestTime() { Globals::Requests::lastRequestTime = asp::Instant::now(); }
 
     std::optional<int> accountIDForUserID(int userID) {
         auto it { Globals::Accounts::accountIDs.find(userID) };

@@ -103,6 +103,7 @@ namespace BetterMessages {
     }
 
     std::optional<std::string> ChatHandler::getMessageContentFromString(std::string const& data) {
+        log::info("{}", data);
         if (data.empty() || !string::contains(data, ':')) return {};
         std::vector<std::string> message { string::split(data, ":") };
         for (auto i { 0uz }; i < message.size(); i += 2) {
@@ -119,6 +120,7 @@ namespace BetterMessages {
     }
 
     void ChatHandler::parseMessageString(std::string const& data) {
+        log::info("{}", data);
         if (data.empty() || !string::contains(data, ':')) {
             m_stopLoading = true;
             return;
@@ -175,7 +177,7 @@ namespace BetterMessages {
                     break;
                 }
             }
-            if (message->m_messageID != -1) {
+            if (message->m_messageID != -1 && Globals::Accounts::accountIDs.find(message->m_userID) != Globals::Accounts::accountIDs.end()) {
                 // log::info("messageID: {}, user: {}, title: {}, content: {}, outgoing: {}", message->m_messageID, message->m_username, message->m_title, message->m_content, message->m_outgoing);
                 auto& history { m_chats[message->m_userID].history };
                 if (message->m_outgoing) {
@@ -222,11 +224,7 @@ namespace BetterMessages {
                 req.userAgent("");
                 req.header("Content-Type", "application/x-www-form-urlencoded");
 
-                asp::Duration delay;
-                co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-                co_await arc::sleep(delay);
-                auto res { co_await req.post("https://www.boomlings.com/database/getGJMessages20.php") };
-                co_await async::waitForMainThread([] { setLastRequestTime(); });
+                web::WebResponse res { co_await sendRequest(req, "https://www.boomlings.com/database/getGJMessages20.php") };
 
                 if (res.ok() && res.string().isOk()) {
                     std::string str { res.string().unwrap() };
@@ -260,11 +258,7 @@ namespace BetterMessages {
                 req.userAgent("");
                 req.header("Content-Type", "application/x-www-form-urlencoded");
 
-                asp::Duration delay;
-                co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-                co_await arc::sleep(delay);
-                auto res { co_await req.post("https://www.boomlings.com/database/getGJMessages20.php") };
-                co_await async::waitForMainThread([] { setLastRequestTime(); });
+                web::WebResponse res { co_await sendRequest(req, "https://www.boomlings.com/database/getGJMessages20.php") };
 
                 if (res.ok() && res.string().isOk()) {
                     std::string str { res.string().unwrap() };
@@ -317,7 +311,7 @@ namespace BetterMessages {
 
     arc::Future<> ChatHandler::downloadChat(int userID, int accountID, std::string const& gjp2) {
         auto size { (co_await async::waitForMainThread<size_t>([this, userID] { return m_chats[userID].history.size(); })).value_or(0) };
-        for (int i { 0uz }; i < size; ++i) {
+        for (auto i { size - 1 }; i >= 0; --i) {
             int messageID { -1 };
             bool sent {};
             co_await async::waitForMainThread([this, i, userID, &messageID, &sent] {
@@ -340,16 +334,12 @@ namespace BetterMessages {
                 req.userAgent("");
                 req.header("Content-Type", "application/x-www-form-urlencoded");
 
-                asp::Duration delay;
-                co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-                co_await arc::sleep(delay);
-                auto res { co_await req.post("https://www.boomlings.com/database/downloadGJMessage20.php") };
-                co_await async::waitForMainThread([] { setLastRequestTime(); });
+                web::WebResponse res { co_await sendRequest(req, "https://www.boomlings.com/database/downloadGJMessage20.php") };
 
                 if (res.ok() && res.string().isOk()) {
                     std::string str { res.string().unwrap() };
                     // log::info("Download request (userID: {}, messageID: {}, sent: {}) response: {}", userID, messageID, sent, str);
-                    co_await async::waitForMainThread([this, i, userID, str] {
+                    co_await async::waitForMainThread([this, i, userID, &str] {
                         auto content { getMessageContentFromString(str) };
                         if (content) {
                             // log::info("message content: {}", content.value());
@@ -400,11 +390,7 @@ namespace BetterMessages {
                 req.userAgent("");
                 req.header("Content-Type", "application/x-www-form-urlencoded");
 
-                asp::Duration delay;
-                co_await async::waitForMainThread([&delay] { delay = timeToNextRequest(); });
-                co_await arc::sleep(delay);
-                auto res { co_await req.post("https://www.boomlings.com/database/uploadGJMessage20.php") };
-                co_await async::waitForMainThread([] { setLastRequestTime(); });
+                web::WebResponse res { co_await sendRequest(req, "https://www.boomlings.com/database/uploadGJMessage20.php") };
 
                 if (res.ok() && res.string().isOk()) {
                     std::string str { res.string().unwrap() };

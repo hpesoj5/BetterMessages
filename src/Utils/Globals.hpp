@@ -1,5 +1,6 @@
 #pragma once
 
+#include <arc/sync/Mutex.hpp>
 #include <asp/time/Instant.hpp>
 #include <asp/time/Duration.hpp>
 #include <unordered_map>
@@ -26,8 +27,8 @@ namespace Globals {
 
     namespace Requests {
         inline const std::string SOCIAL_SECRET { "Wmfd2893gb7" };
-        inline asp::Instant lastRequestTime { asp::Instant::now() };
-        inline constexpr asp::Duration REQUEST_DELAY { asp::Duration::fromMillis(750) };
+        inline arc::Mutex<asp::Instant> requestMtx { asp::Instant::now() };
+        inline constexpr asp::Duration REQUEST_DELAY { asp::Duration::fromMillis(1000) };
         inline int activeInterval { 5000 };
         inline int backgroundInterval { 30000 };
         inline bool backgroundPollingEnabled { true };
