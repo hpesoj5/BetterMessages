@@ -103,7 +103,7 @@ namespace BetterMessages {
     }
 
     std::optional<std::string> ChatHandler::getMessageContentFromString(std::string const& data) {
-        log::info("{}", data);
+        // log::info("{}", data);
         if (data.empty() || !string::contains(data, ':')) return {};
         std::vector<std::string> message { string::split(data, ":") };
         for (auto i { 0uz }; i < message.size(); i += 2) {
@@ -120,7 +120,7 @@ namespace BetterMessages {
     }
 
     void ChatHandler::parseMessageString(std::string const& data) {
-        log::info("{}", data);
+        // log::info("{}", data);
         if (data.empty() || !string::contains(data, ':')) {
             m_stopLoading = true;
             return;
@@ -312,7 +312,7 @@ namespace BetterMessages {
     arc::Future<> ChatHandler::downloadChat(int userID, int accountID, std::string const& gjp2) {
         auto size { (co_await async::waitForMainThread<size_t>([this, userID] { return m_chats[userID].history.size(); })).value_or(0) };
         for (int i { static_cast<int>(size) - 1 }; i >= 0; --i) {
-            log::info("{}, {}", i, size);
+            // log::info("{}, {}", i, size);
             int messageID { -1 };
             bool sent {};
             co_await async::waitForMainThread([this, i, userID, &messageID, &sent] {

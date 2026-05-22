@@ -66,7 +66,7 @@ namespace BetterMessages {
 
     void ProfileSelectMenu::enableScrollWheel(bool enabled) {
         m_profileScrollLayer->enableScrollWheel(enabled);
-        log::debug("ProfileScrollLayer scrollWheel {}", enabled ? "enabled" : "disabled");
+        // log::debug("ProfileScrollLayer scrollWheel {}", enabled ? "enabled" : "disabled");
     }
 
     void ProfileSelectMenu::updateZOrder(int zOrder) {
@@ -109,7 +109,7 @@ namespace BetterMessages {
                     displayUsers();
                 });
             }
-            else log::debug("Get friend list request failed: {}", res.code());
+            else log::info("Get friend list request failed: {}", res.code());
         }, [this] { m_isLoading = false; }).setName("RetrieveFriends"_spr);
     }
 

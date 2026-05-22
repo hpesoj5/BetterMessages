@@ -97,7 +97,7 @@ namespace BetterMessages {
     }
 
     ChatMenu::~ChatMenu() {
-        log::debug("ChatMenu instance destroyed");
+        // log::debug("ChatMenu instance destroyed");
     }
 
     void ChatMenu::setLoadingSpinner(bool visible) {
@@ -122,7 +122,7 @@ namespace BetterMessages {
 
     void ChatMenu::enableScrollWheel(bool enabled) {
         m_chatHistoryLayer->enableScrollWheel(enabled);
-        log::debug("ChatHistoryLayer scrollWheel {}", enabled ? "enabled" : "disabled");
+        // log::debug("ChatHistoryLayer scrollWheel {}", enabled ? "enabled" : "disabled");
     }
 
     void ChatMenu::scrollToBottom() { m_chatHistoryLayer->m_contentLayer->setPosition({ 0.f, 0.f }); }

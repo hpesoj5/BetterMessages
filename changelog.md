@@ -1,3 +1,8 @@
+# 1.0.1
+- changed the ordering of messages to download newest first
+- used a mutex to throttle web requests instead of queuing in main thread
+- does not add person's chat history to save data if they are not part of the user's friend list (does not apply to previous messages)
+
 # 1.0.0
 - removed unused data member variables
 
