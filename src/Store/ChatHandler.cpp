@@ -311,7 +311,8 @@ namespace BetterMessages {
 
     arc::Future<> ChatHandler::downloadChat(int userID, int accountID, std::string const& gjp2) {
         auto size { (co_await async::waitForMainThread<size_t>([this, userID] { return m_chats[userID].history.size(); })).value_or(0) };
-        for (auto i { size - 1 }; i >= 0; --i) {
+        for (int i { static_cast<int>(size) - 1 }; i >= 0; --i) {
+            log::info("{}, {}", i, size);
             int messageID { -1 };
             bool sent {};
             co_await async::waitForMainThread([this, i, userID, &messageID, &sent] {

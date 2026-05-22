@@ -41,7 +41,7 @@ namespace BetterMessages {
         return result;
     }
 
-    arc::Future<web::WebResponse> sendRequest(web::WebRequest& req, std::string const& endpoint) {
+    arc::Future<web::WebResponse> sendRequest(web::WebRequest req, std::string endpoint) {
         bool shouldLoop { true };
         while (shouldLoop) {
             asp::Instant until;
@@ -56,7 +56,7 @@ namespace BetterMessages {
             }
             if (shouldLoop) co_await arc::sleepUntil(until);
         }
-        log::info("sending request with to {}", endpoint);
+        log::info("sending request to {}", endpoint);
         co_return co_await req.post(endpoint);
     }
 

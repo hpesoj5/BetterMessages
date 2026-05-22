@@ -101,7 +101,7 @@ namespace BetterMessages {
             req.userAgent("");
             req.header("Content-Type", "application/x-www-form-urlencoded");
 
-            auto res { co_await sendRequest(req, "https://www.boomlings.com/database/getGJUserList20.php") };
+            web::WebResponse res { co_await sendRequest(req, "https://www.boomlings.com/database/getGJUserList20.php") };
 
             if (res.ok() && res.string().isOk()) {
                 co_await async::waitForMainThread([this, res] {
