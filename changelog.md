@@ -1,3 +1,6 @@
+# 1.0.2
+- remove `saveToDisk()` in destructor of `ChatHandler`
+
 # 1.0.1
 - changed the ordering of messages to download newest first
 - used a mutex to throttle web requests instead of queuing in main thread
