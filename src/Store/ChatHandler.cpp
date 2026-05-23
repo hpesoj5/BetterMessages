@@ -15,8 +15,6 @@ namespace BetterMessages {
         return &handler;
     }
 
-    ChatHandler::~ChatHandler() { saveToDisk(); }
-
     void ChatHandler::saveToDisk() {
         auto m { Mod::get() };
         m->setSavedValue("chatData"_spr, m_chats);

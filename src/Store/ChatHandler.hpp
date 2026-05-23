@@ -47,7 +47,7 @@ namespace BetterMessages {
 
     private:
         ChatHandler() = default;
-        ~ChatHandler();
+        ~ChatHandler() = default;
 
         ChatHandler(ChatHandler const& other) = delete;
         ChatHandler(ChatHandler&& other) = delete;
