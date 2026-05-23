@@ -1,3 +1,6 @@
+# 1.0.3
+- version update to show logo in-game
+
 # 1.0.3-beta
 - instead of ignoring non-friend messages during `loadMessages()`, ignores them in `downloadChat()`
 - yes
