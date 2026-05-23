@@ -175,7 +175,7 @@ namespace BetterMessages {
                     break;
                 }
             }
-            if (message->m_messageID != -1 && Globals::Accounts::accountIDs.find(message->m_userID) != Globals::Accounts::accountIDs.end()) {
+            if (message->m_messageID != -1) {
                 // log::info("messageID: {}, user: {}, title: {}, content: {}, outgoing: {}", message->m_messageID, message->m_username, message->m_title, message->m_content, message->m_outgoing);
                 auto& history { m_chats[message->m_userID].history };
                 if (message->m_outgoing) {
@@ -308,7 +308,11 @@ namespace BetterMessages {
     }
 
     arc::Future<> ChatHandler::downloadChat(int userID, int accountID, std::string const& gjp2) {
-        auto size { (co_await async::waitForMainThread<size_t>([this, userID] { return m_chats[userID].history.size(); })).value_or(0) };
+        auto size { (co_await async::waitForMainThread<size_t>([this, userID] {
+            if (!Globals::Accounts::accountIDs.contains(userID)) return 0uz;
+            return m_chats[userID].history.size();
+        })).value_or(0) };
+
         for (int i { static_cast<int>(size) - 1 }; i >= 0; --i) {
             // log::info("{}, {}", i, size);
             int messageID { -1 };

@@ -1,3 +1,7 @@
+# 1.0.3-beta
+- instead of ignoring non-friend messages during `loadMessages()`, ignores them in `downloadChat()`
+- yes
+
 # 1.0.2
 - remove `saveToDisk()` in destructor of `ChatHandler`
 

@@ -194,7 +194,7 @@ namespace BetterMessages {
             auto size { m_users.size() };
             for (auto i { 0uz }; i < size; ++i) {
                 auto user { m_users[i] };
-                if (string::toLower(user->m_userName).find(string::toLower(str)) != std::string::npos) {
+                if (string::contains(string::toLower(user->m_userName), string::toLower(str))) {
                     m_filteredUsers.push_back(user);
                 }
             }
