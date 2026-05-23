@@ -114,6 +114,10 @@ namespace BetterMessages {
     }
 
     void ProfileSelectMenu::parseFriendString(std::string const& data) {
+        if (data.empty() || !string::contains(data, ':')) {
+            log::info("invalid friend string");
+            return;
+        }
         std::vector<std::string> parsed { string::split(data, "|") };
         // log::info("parsed: {}", parsed);
         auto size { parsed.size() };
@@ -126,7 +130,11 @@ namespace BetterMessages {
         for (auto const& data : friends) {
             Ref<GJUserScore> user { GJUserScore::create() };
             for (auto i { 0uz }; i < data.size(); i += 2) {
-                int key { numFromString<int>(data[i]).ok().value() };
+                int key { numFromString<int>(data[i]).unwrapOr(-1) };
+                if (key == -1) {
+                    log::info("invalid friend string");
+                    return;
+                }
                 std::string value { data[i + 1] };
                 // log::info("key: {}, value: {}", key, value);
                 switch (key) {

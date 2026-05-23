@@ -106,6 +106,10 @@ namespace BetterMessages {
         std::vector<std::string> message { string::split(data, ":") };
         for (auto i { 0uz }; i < message.size(); i += 2) {
             int key { numFromString<int>(message[i]).unwrapOr(-1) };
+            if (key == -1) {
+                log::info("invalid message string");
+                return {};
+            }
             std::string value { message[i + 1] };
             if (key == 5) {
                 auto res { base64::decode(value).ok() };
@@ -132,6 +136,10 @@ namespace BetterMessages {
             Ref<GJUserMessage> message { GJUserMessage::create() };
             for (auto i { 0uz }; i < messageData.size(); i += 2) {
                 int key { numFromString<int>(messageData[i]).unwrapOr(-1) };
+                if (key == -1) {
+                    log::info("invalid message key");
+                    continue;
+                }
                 std::string value { messageData[i + 1] };
                 // log::info("key: {}, value: {}", key, value);
                 switch (key) {
