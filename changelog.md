@@ -1,3 +1,6 @@
+# 1.0.4
+- add more checks to response string parsing functions
+
 # 1.0.3
 - version update to show logo in-game
 
